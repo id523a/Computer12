@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - lda/ldb/ldc/ldd</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-ld">Instruction: <code>lda</code>/<code>ldb</code>/<code>ldc</code>/<code>ldd</code></h1>
+		<code class="codeblock">lda [location]<br>ldb [location]<br>ldc [location]<br>ldd [location]</code>
+		<div class="bits">
+			<span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield2">Rd (2 bits)</span><span class="bit bitfield6">Location (6 bits)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>Takes two operands: a destination register <code>Rd</code>, and a <a href="../location.html">location</a>.
+		<br>The destination register must be one of A, B, C, or D.
+		<br>The value at the specified location is loaded into the register <code>Rd</code>.</p>
+		<p>Unlike most instructions, load and store instructions cannot be conditional.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li>All processor flags are unaffected.</li>
+		</ul>
+	</body>
+</html>

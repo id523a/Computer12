@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - and/or/xor</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-and">Instruction: <code>and</code></h1>
+		<code class="codeblock">and Rd, Rs<br>cand Rd, Rs</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit bitfield3">Rd (0-7)</span><span class="bit bitfield3">Rs (0-7)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit bitfield3">Rd (0-7)</span><span class="bit bitfield3">Rs (8-15)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit bitfield3">Rd (8-15)</span><span class="bit bitfield3">Rs (0-7)</span>
+		</div>
+		<h1 id="summary-or">Instruction: <code>or</code></h1>
+		<code class="codeblock">or Rd, Rs<br>cor Rd, Rs</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit bitfield3">Rd (0-7)</span><span class="bit bitfield3">Rs (0-7)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit bitfield3">Rd (0-7)</span><span class="bit bitfield3">Rs (8-15)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit bitfield3">Rd (8-15)</span><span class="bit bitfield3">Rs (0-7)</span>
+		</div>
+		<h1 id="summary-xor">Instruction: <code>xor</code></h1>
+		<code class="codeblock">xor Rd, Rs<br>cxor Rd, Rs</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield3">Rd (0-7)</span><span class="bit bitfield3">Rs (0-7)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield3">Rd (0-7)</span><span class="bit bitfield3">Rs (8-15)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield3">Rd (8-15)</span><span class="bit bitfield3">Rs (0-7)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>These take two operands: a destination register <code>Rd</code> and a source register <code>Rs</code>.
+		<br>These instructions compute the bitwise AND/OR/XOR of <code>Rd</code> and <code>Rs</code>, and store the result in <code>Rd</code>.</p>
+		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, the instruction has no effect.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li><b>Z:</b> Set to 1 if the result of the bitwise operation was zero, and set to 0 otherwise.</li>
+			<li><b>S:</b> Set to the most significant bit of the result.</li>
+			<li><b>K:</b> Unchanged.</li>
+			<li><b>V:</b> Set to an undefined value.</li>
+			<li><b>P:</b> Unchanged.</li>
+		</ul>
+	</body>
+</html>

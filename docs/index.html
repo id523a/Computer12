@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction Set Reference</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<h1 id="summary-instr">Instruction Summary</h1>
+		<table style="width: 100%; min-width:30em;">
+			<tbody>
+				<tr>
+					<th style="width:8em;">Assembly</th>
+					<th style="width:3.5em;">Cond.</th>
+					<th style="width:13em;">Name</th>
+					<th>Action</th>
+				</tr>
+				<tr id="summary-add">
+					<td class="code"><a href="instr/add.html">add</a> Rd, Rs</td>
+					<td class="code"><a href="instr/add.html">cadd</a></td>
+					<td>Add</td>
+					<td>(K:Rd) := Rd + Rs</td>
+				</tr>
+				<tr id="summary-adk">
+					<td class="code"><a href="instr/adk.html">adk</a> Rd, Rs</td>
+					<td class="code"><a href="instr/adk.html">cadk</a></td>
+					<td>Add with carry</td>
+					<td>(K:Rd) := Rd + Rs + K</td>
+				</tr>
+				<tr id="summary-and">
+					<td class="code"><a href="instr/bit_op.html#summary-and">and</a> Rd, Rs</td>
+					<td class="code"><a href="instr/bit_op.html#summary-and">cand</a></td>
+					<td>Bitwise AND</td>
+					<td>Rd := Rd AND Rs</td>
+				</tr>
+				<tr id="summary-asr">
+					<td class="code"><a href="#">asr</a> Rd</td>
+					<td class="code"><a href="#">casr</a></td>
+					<td>Arithmetic shift right</td>
+					<td>Rd := Rd &gt;&gt; 1</td>
+				</tr>
+				<tr id="summary-flg">
+					<td class="code"><a href="#">flg</a> N</td>
+					<td class="code"><a href="#">cflg</a></td>
+					<td>Flags only</td>
+					<td>Make next N instructions only affect flags</td>
+				</tr>
+				<tr id="summary-lda">
+					<td class="code"><a href="instr/ld.html">lda</a> [...]</td>
+					<td class="code"></td>
+					<td>Load A</td>
+					<td>A := memory value</td>
+				</tr>
+				<tr id="summary-ldb">
+					<td class="code"><a href="instr/ld.html">ldb</a> [...]</td>
+					<td class="code"></td>
+					<td>Load B</td>
+					<td>B := memory value</td>
+				</tr>
+				<tr id="summary-ldc">
+					<td class="code"><a href="instr/ld.html">ldc</a> [...]</td>
+					<td class="code"></td>
+					<td>Load C</td>
+					<td>C := memory value</td>
+				</tr>
+				<tr id="summary-ldd">
+					<td class="code"><a href="instr/ld.html">ldd</a> [...]</td>
+					<td class="code"></td>
+					<td>Load D</td>
+					<td>D := memory value</td>
+				</tr>
+				<tr id="summary-mov">
+					<td class="code"><a href="instr/mov.html">mov</a> Rd, Rs</td>
+					<td class="code"><a href="instr/mov.html">cmov</a></td>
+					<td>Move</td>
+					<td>Rd := Rs</td>
+				</tr>
+				<tr id="summary-or">
+					<td class="code"><a href="instr/bit_op.html#summary-or">or</a>&nbsp; Rd, Rs</td>
+					<td class="code"><a href="instr/bit_op.html#summary-or">cor</a></td>
+					<td>Bitwise OR</td>
+					<td>Rd := Rd OR Rs</td>
+				</tr>
+				<tr id="summary-rkl">
+					<td class="code"><a href="#">rkl</a> Rd</td>
+					<td class="code"><a href="#">crkl</a></td>
+					<td>Rotate left through carry</td>
+					<td>(K,Rd) := (K,Rd) &lt;&lt;&lt; 1</td>
+				</tr>
+				<tr id="summary-rkr">
+					<td class="code"><a href="#">rkr</a> Rd</td>
+					<td class="code"><a href="#">crkr</a></td>
+					<td>Rotate right through carry</td>
+					<td>(K,Rd) := (K,Rd) &gt;&gt;&gt; 1</td>
+				</tr>
+				<tr id="summary-rol">
+					<td class="code"><a href="#">rol</a> Rd</td>
+					<td class="code"><a href="#">crol</a></td>
+					<td>Rotate left</td>
+					<td>Rd := Rd &lt;&lt;&lt; 1</td>
+				</tr>
+				<tr id="summary-ror">
+					<td class="code"><a href="#">ror</a> Rd</td>
+					<td class="code"><a href="#">cror</a></td>
+					<td>Rotate right</td>
+					<td>Rd := Rd &gt;&gt;&gt; 1</td>
+				</tr>
+				<tr id="summary-sbk">
+					<td class="code"><a href="instr/sbk.html">sbk</a> Rd, Rs</td>
+					<td class="code"><a href="instr/sbk.html">csbk</a></td>
+					<td>Subtract with carry</td>
+					<td>(K:Rd) := Rd - Rs - K</td>
+				</tr>
+				<tr id="summary-shl">
+					<td class="code"><a href="#">shl</a> Rd</td>
+					<td class="code"><a href="#">cshl</a></td>
+					<td>Shift left</td>
+					<td>Rd := Rd &lt;&lt; 1</td>
+				</tr>
+				<tr id="summary-shr">
+					<td class="code"><a href="#">shr</a> Rd</td>
+					<td class="code"><a href="#">cshr</a></td>
+					<td>Logical shift right</td>
+					<td>Rd := Rd &gt;&gt; 1</td>
+				</tr>
+				<tr id="summary-sta">
+					<td class="code"><a href="instr/st.html">sta</a> [...]</td>
+					<td class="code"></td>
+					<td>Store A</td>
+					<td>memory value := A</td>
+				</tr>
+				<tr id="summary-stb">
+					<td class="code"><a href="instr/st.html">stb</a> [...]</td>
+					<td class="code"></td>
+					<td>Store B</td>
+					<td>memory value := B</td>
+				</tr>
+				<tr id="summary-stc">
+					<td class="code"><a href="instr/st.html">stc</a> [...]</td>
+					<td class="code"></td>
+					<td>Store C</td>
+					<td>memory value := C</td>
+				</tr>
+				<tr id="summary-std">
+					<td class="code"><a href="instr/st.html">std</a> [...]</td>
+					<td class="code"></td>
+					<td>Store D</td>
+					<td>memory value := D</td>
+				</tr>
+				<tr id="summary-sub">
+					<td class="code"><a href="instr/sub.html">sub</a> Rd, Rs</td>
+					<td class="code"><a href="instr/sub.html">csub</a></td>
+					<td>Subtract</td>
+					<td>(K:Rd) := Rd - Rs</td>
+				</tr>
+				<tr id="summary-xor">
+					<td class="code"><a href="instr/bit_op.html#summary-xor">xor</a> Rd, Rs</td>
+					<td class="code"><a href="instr/bit_op.html#summary-xor">cxor</a></td>
+					<td>Bitwise XOR</td>
+					<td>Rd := Rd XOR Rs</td>
+				</tr>
+			</tbody>
+		</table>
+	</body>
+</html>

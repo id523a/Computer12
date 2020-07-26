@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - sta/stb/stc/std</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-ld">Instruction: <code>sta</code>/<code>stb</code>/<code>stc</code>/<code>std</code></h1>
+		<code class="codeblock">sta [location]<br>stb [location]<br>stc [location]<br>std [location]</code>
+		<div class="bits">
+			<span class="bit">1</span><span class="bit">1</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield2">Rs (2 bits)</span><span class="bit bitfield6">Location (6 bits)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>Takes two operands: a source register <code>Rs</code>, and a <a href="../location.html">location</a>.
+		<br>The source register must be one of A, B, C, or D.
+		<br>The value in the register <code>Rs</code> is stored at the specified location.</p>
+		<p>Unlike most instructions, load and store instructions cannot be conditional.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li>All processor flags are unaffected.</li>
+		</ul>
+	</body>
+</html>

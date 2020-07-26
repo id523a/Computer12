@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - mov</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-mov">Instruction: <code>mov</code></h1>
+		<code class="codeblock">mov Rd, Rs<br>cmov Rd, Rs</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 0-7)</span><span class="bit bitfield3">Rs (3 bits, 0-7)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 0-7)</span><span class="bit bitfield3">Rs (3 bits, 8-15)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 8-15)</span><span class="bit bitfield3">Rs (3 bits, 0-7)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>Takes two operands: a destination register <code>Rd</code> and a source register <code>Rs</code>.
+		<br>The value of <code>Rs</code> is copied into <code>Rd</code>.</p>
+		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, the instruction has no effect.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li>All processor flags are unaffected.</li>
+		</ul>
+	</body>
+</html>

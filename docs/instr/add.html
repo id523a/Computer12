@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - add</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-add">Instruction: <code>add</code></h1>
+		<code class="codeblock">add Rd, Rs<br>cadd Rd, Rs</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 0-7)</span><span class="bit bitfield3">Rs (3 bits, 0-7)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 0-7)</span><span class="bit bitfield3">Rs (3 bits, 8-15)</span>
+		</div>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 8-15)</span><span class="bit bitfield3">Rs (3 bits, 0-7)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>Takes two operands: a destination register <code>Rd</code> and a source register <code>Rs</code>.
+		<br>The values of <code>Rd</code> and <code>Rs</code> are added together, and the result is stored in <code>Rd</code>. The K flag is set to 1 if a carry was generated and 0 otherwise. The values are treated as unsigned integers, or equivalently, as 2's complement signed integers. All arithmetic operations 'wrap around' on overflow.</p>
+		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, the instruction has no effect.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li><b>Z:</b> Set to 1 if the addition result (not including the carry) was zero, and set to 0 otherwise.</li>
+			<li><b>S:</b> Set to the most significant bit of the addition result (not including the carry).</li>
+			<li><b>K:</b> Carry out from the addition, if values are treated as unsigned.</li>
+			<li><b>V:</b> Set to 1 if 2's complement overflow occurred during the addition, and to 0 otherwise.</li>
+			<li><b>P:</b> Unchanged.</li>
+		</ul>
+	</body>
+</html>

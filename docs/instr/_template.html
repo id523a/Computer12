@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - template</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-xxx">Instruction: <code>(opcode)</code></h1>
+		<code class="codeblock">(asm)<br>(asm line 2)</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 0-7)</span><span class="bit bitfield3">Rs (3 bits, 0-7)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>How many operands?
+		<br>What does it do with them?</p>
+		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, the instruction has no effect.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li><b>Z:</b> ...</li>
+			<li><b>S:</b> ...</li>
+			<li><b>K:</b> ...</li>
+			<li><b>V:</b> ...</li>
+			<li><b>P:</b> ...</li>
+		</ul>
+	</body>
+</html>
