@@ -1,0 +1,234 @@
+Clock speed: 20 MHz
+Pixel rate: 20 MHz
+Horizontal timing:
+	Sync pulse: 64 px
+	Back porch: 52 px
+	Visible area: 384 px
+	Front porch: 28 px
+	Total: 528 px
+Vertical timing:
+	Sync pulse: 4 lines
+	Back porch: 35 lines
+	Visible area: 576 lines
+	Front porch: 13 lines
+	Total: 628 lines
+
+Flags:
+Zero flag (Z)
+Sign flag (S)
+Carry flag (K)
+Overflow flag (V)
+Predicate flag (P)
+
+Registers:
+
+0 - A (general purpose)
+1 - B (general purpose)
+2 - C (general purpose)
+3 - D (general purpose)
+4 - E (general purpose)
+5 - F (general purpose)
+6 - G (general purpose)
+7 - Immediate value (as source)
+	Zero/Discard (as destination)
+8 - APL (pointer A, low word)
+9 - APH (pointer A, high word)
+A - BPL (pointer B, low word)
+B - BPH (pointer B, high word)
+C - CPL (pointer C, low word)
+D - CPH (pointer C, high word)
+E - IPL (instruction pointer, low word) *
+F - IPH (instruction pointer, high word) *
+
+* When IPL is read, IPH_tmp is set to the corresponding upper bits. The value that is read points immediately after the current instruction.
+  When IPL is written to, write the value to IPL_tmp.
+  When IPH is read, return IPH_tmp.
+  When IPH is written to, program control flow jumps to IPH:IPL_tmp.
+  This is a bit counter-intuitive but it simplifies the assembly required for relative jumps.
+
+Instructions:
+
+000000dddsss - mov  0ddd, 0sss - reg 0ddd = reg 0sss
+000001dddsss - and  0ddd, 0sss - reg 0ddd = (reg 0ddd) AND (reg 0sss), set Z,S flags based on result
+000010dddsss - or   0ddd, 0sss - reg 0ddd = (reg 0ddd) OR (reg 0sss), set Z,S flags based on result
+000011dddsss - xor  0ddd, 0sss - reg 0ddd = (reg 0ddd) XOR (reg 0sss), set Z,S flags based on result
+000100dddsss - add  0ddd, 0sss - reg 0ddd = (reg 0ddd) + (reg 0sss), set K,V,Z,S flags based on result
+000101dddsss - adk  0ddd, 0sss - reg 0ddd = (reg 0ddd) + (reg 0sss) + K, set K,V,Z,S flags based on result
+000110dddsss - sub  0ddd, 0sss - reg 0ddd = (reg 0ddd) - (reg 0sss), set K,V,Z,S flags based on result
+000111dddsss - sbk  0ddd, 0sss - reg 0ddd = (reg 0ddd) - (reg 0sss) - K, set K,V,Z,S flags based on result
+
+001000dddsss - mov  0ddd, 1sss - reg 0ddd = reg 1sss
+001001dddsss - and  0ddd, 1sss - reg 0ddd = (reg 0ddd) AND (reg 1sss), set Z,S flags based on result
+001010dddsss - or   0ddd, 1sss - reg 0ddd = (reg 0ddd) OR (reg 1sss), set Z,S flags based on result
+001011dddsss - xor  0ddd, 1sss - reg 0ddd = (reg 0ddd) XOR (reg 1sss), set Z,S flags based on result
+001100dddsss - add  0ddd, 1sss - reg 0ddd = (reg 0ddd) + (reg 1sss), set K,V,Z,S flags based on result
+001101dddsss - adk  0ddd, 1sss - reg 0ddd = (reg 0ddd) + (reg 1sss) + K, set K,V,Z,S flags based on result
+001110dddsss - sub  0ddd, 1sss - reg 0ddd = (reg 0ddd) - (reg 1sss), set K,V,Z,S flags based on result
+001111dddsss - sbk  0ddd, 1sss - reg 0ddd = (reg 0ddd) - (reg 1sss) - K, set K,V,Z,S flags based on result
+
+010000dddsss - mov  1ddd, 0sss - reg 1ddd = reg 0sss
+010001dddsss - and  1ddd, 0sss - reg 1ddd = (reg 1ddd) AND (reg 0sss), set Z,S flags based on result
+010010dddsss - or   1ddd, 0sss - reg 1ddd = (reg 1ddd) OR (reg 0sss), set Z,S flags based on result
+010011dddsss - xor  1ddd, 0sss - reg 1ddd = (reg 1ddd) XOR (reg 0sss), set Z,S flags based on result
+010100dddsss - add  1ddd, 0sss - reg 1ddd = (reg 1ddd) + (reg 0sss), set K,V,Z,S flags based on result
+010101dddsss - adk  1ddd, 0sss - reg 1ddd = (reg 1ddd) + (reg 0sss) + K, set K,V,Z,S flags based on result
+010110dddsss - sub  1ddd, 0sss - reg 1ddd = (reg 1ddd) - (reg 0sss), set K,V,Z,S flags based on result
+010111dddsss - sbk  1ddd, 0sss - reg 1ddd = (reg 1ddd) - (reg 0sss) - K, set K,V,Z,S flags based on result
+
+01100000dddd - rol  dddd - Rotate left
+01100001dddd - rkl  dddd - Rotate left through carry
+01100010dddd - shl  dddd - Shift left, carry <- MSB, LSB <- zero
+01100011nnnn - flg  nnnn - Cause the next nnnn instructions to discard their main result and affect flags only
+01100100dddd - ror  dddd - Rotate right
+01100101dddd - rkr  dddd - Rotate right through carry
+01100110dddd - shr  dddd - Logical shift right, zero -> MSB, LSB -> carry
+01100111dddd - asr  dddd - Arithmetic shift right, sign -> MSB, LSB -> carry
+011010cccccc - if   cccccc - P = condition
+011011cccccc - ifx  cccccc - P = P XOR condition
+011100xxxxxx - lda  xxxxxx - load location xxxxxx into reg A
+011101xxxxxx - ldb  xxxxxx - load location xxxxxx into reg B
+011110xxxxxx - ldc  xxxxxx - load location xxxxxx into reg C
+011111xxxxxx - ldd  xxxxxx - load location xxxxxx into reg D
+
+100000dddsss - cmov 0ddd, 0sss
+100001dddsss - cand 0ddd, 0sss
+100010dddsss - cor  0ddd, 0sss
+100011dddsss - cxor 0ddd, 0sss
+100100dddsss - cadd 0ddd, 0sss
+100101dddsss - cadk 0ddd, 0sss
+100110dddsss - csub 0ddd, 0sss
+100111dddsss - csbk 0ddd, 0sss
+
+101000dddsss - cmov 0ddd, 1sss
+101001dddsss - cand 0ddd, 1sss
+101010dddsss - cor  0ddd, 1sss
+101011dddsss - cxor 0ddd, 1sss
+101100dddsss - cadd 0ddd, 1sss
+101101dddsss - cadk 0ddd, 1sss
+101110dddsss - csub 0ddd, 1sss
+101111dddsss - csbk 0ddd, 1sss
+
+110000dddsss - cmov 1ddd, 0sss
+110001dddsss - cand 1ddd, 0sss
+110010dddsss - cor  1ddd, 0sss
+110011dddsss - cxor 1ddd, 0sss
+110100dddsss - cadd 1ddd, 0sss
+110101dddsss - cadk 1ddd, 0sss
+110110dddsss - csub 1ddd, 0sss
+110111dddsss - csbk 1ddd, 0sss
+
+11100000dddd - crol dddd
+11100001dddd - crkl dddd
+11100010dddd - cshl dddd
+11100011nnnn - cflg nnnn
+
+11100100dddd - cror dddd
+11100101dddd - crkr dddd
+11100110dddd - cshr dddd
+11100111dddd - casr dddd
+
+111010cccccc - ifa  cccccc - P = P AND condition
+111011cccccc - ifo  cccccc - P = P OR condition
+111100xxxxxx - sta  xxxxxx - store reg A into location xxxxxx
+111101xxxxxx - stb  xxxxxx - store reg B into location xxxxxx
+111110xxxxxx - stc  xxxxxx - store reg C into location xxxxxx
+111111xxxxxx - std  xxxxxx - store reg D into location xxxxxx
+
+Conditions:
+
+00 to 0F - if register is zero
+10 - if zero flag / if equal
+11 - if carry / if unsigned >=
+12 - if sign
+13 - if overflow
+14 - reserved
+15 - reserved
+16 - reserved
+17 - reserved
+18 - if unsigned >
+19 - if signed >=
+1A - if signed >
+1B - reserved
+1C - reserved
+1D - reserved
+1E - reserved
+1F - always true
+
+20 to 2F - if register is not zero
+30 - if not zero flag / if not equal
+31 - if not carry / if unsigned <
+32 - if not sign
+33 - if not overflow
+34 - negation of 14 (reserved)
+35 - negation of 15 (reserved)
+36 - negation of 16 (reserved)
+37 - negation of 17 (reserved)
+38 - if unsigned <=
+39 - if signed <
+3A - if signed <=
+3B - negation of 1B (reserved)
+3C - negation of 1C (reserved)
+3D - negation of 1D (reserved)
+3E - negation of 1E (reserved)
+3F - always false
+
+Load/store locations:
+
+00: Highest-priority interrupt number
+	Read, inside interrupt handler: Lowest interrupt number
+	Read, inside user code: 0xFFF
+	Write, inside interrupt handler: Dismiss lowest interrupt number, possibly switch to user code
+	Write, inside user code: Trigger software interrupt
+01: Interrupt mask register
+02: [AP++] (Memory at location APH:APL, postincrement)
+03: [--AP] (Memory at location APH:APL, predecrement)
+04: [BP++] (Memory at location BPH:BPL, postincrement)
+05: [--BP] (Memory at location BPH:BPL, predecrement)
+06: [CP++] (Memory at location CPH:CPL, postincrement)
+07: [--CP] (Memory at location CPH:CPL, predecrement)
+08: Reserved
+09: Reserved
+0A: Reserved
+0B: Reserved
+0C: Reserved
+0D: Reserved
+0E: Reserved
+0F: Reserved
+
+10-1F: [AP], [AP+0] ... [AP+15] (Memory at location APH:APL, plus 0-15 word offset)
+
+20-2F: [BP], [BP+0] ... [BP+15] (Memory at location BPH:BPL, plus 0-15 word offset)
+
+30-3F: [CP], [CP+0] ... [CP+15] (Memory at location CPH:CPL, plus 0-15 word offset)
+
+Memory layout:
+Page 000:
+	000-FFF: Always invalid access
+Page 001:
+	000-FFF: Reserved
+Page 002:
+	000-7DF: Data (Boot) ROM
+	7E0-7FF: Base interrupt handler
+	800-FFF: Graphics ROM (chars #000 to #0FF)
+Page 003:
+	000-5FF: Character codes
+	600-7FF: User memory
+	800-DFF: Screen colors
+	E00-E3F: Palette
+	E40-FFF: User memory
+Page 004:
+	000-FFF: Data RAM
+Page 005:
+	000-FFF: Data RAM
+Page 006:
+	000-FFF: Data RAM
+Page 007:
+	000-FFF: Data RAM
+Page 008:
+	000-FFF: Raw graphics RAM (chars #800 to #9FF)
+Page 009:
+	000-FFF: Raw graphics RAM (chars #A00 to #BFF)
+Page 00A:
+	000-FFF: Raw graphics RAM (chars #C00 to #DFF)
+Page 00B:
+	000-FFF: Raw graphics RAM (chars #E00 to #FFF)

@@ -1,0 +1,35 @@
+during 0:
+	mem_addr = PC;
+clock 0:
+	mem_data => current instruction;
+	PC <= PC + 1;
+during 1:
+	if mem_data is instruction with immediate value,
+		mem_addr = PC;
+	if mem_data is load from memory,
+		mem_addr = load address;
+
+clock 1:
+	instr <= mem_data;
+	if mem_data is instruction with immediate value,
+		PC <= PC + 1;
+	if instr/mem_data reads from the program counter,
+		set IPH:IPL to new value of PC
+	mem_data => immediate value / memory read value;
+during 2:
+	if instr is store to memory,
+		write_enable = 1;
+		mem_addr = store address;
+clock 2:
+	Write computed values to register / to program counter / to memory store
+	Perform auto increment/decrement on memory address
+	Perform interrupt context switch if necessary
+	If jump,
+		PC <= jump target
+during 0:
+	mem_addr = PC;
+	
+Cycle:
+0 - fetch instruction
+1 - read data
+2 - write data
