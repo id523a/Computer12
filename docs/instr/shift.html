@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - shl/shr/asr</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-shl">Instruction: <code>shl</code></h1>
+		<code class="codeblock">shl Rd<br>cshl Rd</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield4">Rd (4 bits, 0-15)</span>
+		</div>
+		<h1 id="summary-shr">Instruction: <code>shr</code></h1>
+		<code class="codeblock">shr Rd<br>cshr Rd</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit bitfield4">Rd (4 bits, 0-15)</span>
+		</div>
+		<h1 id="summary-asr">Instruction: <code>asr</code></h1>
+		<code class="codeblock">asr Rd<br>casr Rd</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield4">Rd (4 bits, 0-15)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>These instructions take one operand: a destination register <code>Rd</code>.
+		<br>The instructions shift the bits in <code>Rd</code> by one place. The K flag takes the value of the bit that is shifted out.
+		<br><code>shl</code> performs a left shift. 0 is shifted into the LSB.
+		<br><code>shr</code> performs a logical right shift. 0 is shifted into the MSB.
+		<br><code>asr</code> performs an arithmetic right shift. The bit that is shifted into the MSB is a copy of the existing MSB.</p>
+		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, the instructions have no effect.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li><b>Z:</b> Set to 1 if the value in Rd is zero after the bit shift, and set to 0 otherwise.</li>
+			<li><b>S:</b> Set to the most significant bit of Rd after the bit shift.</li>
+			<li><b>K:</b> Set to the bit that is shifted out from Rd.</li>
+			<li><b>V:</b> Set to an unspecified value.</li>
+			<li><b>P:</b> Unchanged.</li>
+		</ul>
+	</body>
+</html>
