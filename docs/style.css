@@ -50,6 +50,11 @@ th, td {
 	font-weight: normal;
 	font-style: italic;
 }
+.bitfield4 {
+	width: 12em;
+	font-weight: normal;
+	font-style: italic;
+}
 .bitfield6 {
 	width: 18em;
 	font-weight: normal;
