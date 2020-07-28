@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - if/ifa/ifo/ifx</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-if">Instruction: <code>if</code></h1>
+		<code class="codeblock">if [condition]</code>
+		<div class="bits">
+			<span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit bitfield6">Condition (6 bits)</span>
+		</div>
+		<h1 id="summary-ifa">Instruction: <code>ifa</code></h1>
+		<code class="codeblock">ifa [condition]</code>
+		<div class="bits">
+			<span class="bit">1</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">0</span><span class="bit bitfield6">Condition (6 bits)</span>
+		</div>
+		<h1 id="summary-ifo">Instruction: <code>ifo</code></h1>
+		<code class="codeblock">ifo [condition]</code>
+		<div class="bits">
+			<span class="bit">1</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield6">Condition (6 bits)</span>
+		</div>
+		<h1 id="summary-ifx">Instruction: <code>ifx</code></h1>
+		<code class="codeblock">ifx [condition]</code>
+		<div class="bits">
+			<span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit bitfield6">Condition (6 bits)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>The <code>if*</code> instructions take in a 6-bit condition, which is interpreted as described in the <a href="#conditions">Conditions</a> section, and modify the P flag based on whether that condition is true or false.
+		<br>Almost all instructions can be made to execute conditionally based on the value of the P flag.</p>
+		<p><code>if</code> directly sets the P flag's value to the specified condition. (<code>P := condition</code>)
+		<br><code>ifa</code> performs a logical AND of the P flag and the condition. (<code>P := P AND condition</code>)
+		<br><code>ifo</code> performs a logical OR of the P flag and the condition. (<code>P := P OR condition</code>)
+		<br><code>ifx</code> performs a logical XOR of the P flag and the condition. (<code>P := P XOR condition</code>)</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li><b>Z:</b> Unchanged.</li>
+			<li><b>S:</b> Unchanged.</li>
+			<li><b>K:</b> Unchanged.</li>
+			<li><b>V:</b> Unchanged.</li>
+			<li><b>P:</b> Modified based on the specified condition.</li>
+		</ul>
+		<h1 id="conditions">Conditions</h1>
+		<p>(todo)</p>
+	</body>
+</html>
