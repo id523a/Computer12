@@ -15,7 +15,7 @@
 		<p>Takes two operands: a destination register <code>Rd</code>, and a <a href="../location.html">location</a>.
 		<br>The destination register must be one of A, B, C, or D.
 		<br>The value at the specified location is loaded into the register <code>Rd</code>.</p>
-		<p>Unlike most instructions, load and store instructions cannot be conditional.</p>
+		<p>Unlike with most instructions, load and store instructions do not have a conditional counterpart. However, <a href="flg.html"><code>cflg</code></a> can be used to conditionally execute this instruction.</p>
 		<h2 id="flags">Flags</h2>
 		<ul>
 			<li>All processor flags are unaffected.</li>
