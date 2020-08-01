@@ -174,26 +174,26 @@ Conditions:
 
 Load/store locations:
 
-00: Highest-priority interrupt number
+00: [INT]
 	Read, inside interrupt handler: Lowest interrupt number
 	Read, inside user code: 0xFFF
 	Write, inside interrupt handler: Dismiss lowest interrupt number, possibly switch to user code
 	Write, inside user code: Trigger software interrupt
-01: Interrupt mask register
-02: [AP++] (Memory at location APH:APL, postincrement)
-03: [--AP] (Memory at location APH:APL, predecrement)
-04: [BP++] (Memory at location BPH:BPL, postincrement)
-05: [--BP] (Memory at location BPH:BPL, predecrement)
-06: [CP++] (Memory at location CPH:CPL, postincrement)
-07: [--CP] (Memory at location CPH:CPL, predecrement)
-08: Reserved
-09: Reserved
-0A: Reserved
-0B: Reserved
-0C: Reserved
-0D: Reserved
-0E: Reserved
-0F: Reserved
+01: Reserved
+02: Reserved
+03: Reserved
+04: Reserved
+05: Reserved
+06: Reserved
+07: Reserved
+08: [IM0] Interrupt mask register 0, (interrupts 0-11)
+09: [IM1] Interrupt mask register 1, (interrupts 12-23)
+0A: [AP++] (Memory at location APH:APL, postincrement)
+0B: [--AP] (Memory at location APH:APL, predecrement)
+0C: [BP++] (Memory at location BPH:BPL, postincrement)
+0D: [--BP] (Memory at location BPH:BPL, predecrement)
+0E: [CP++] (Memory at location CPH:CPL, postincrement)
+0F: [--CP] (Memory at location CPH:CPL, predecrement)
 
 10-1F: [AP], [AP+0] ... [AP+15] (Memory at location APH:APL, plus 0-15 word offset)
 
