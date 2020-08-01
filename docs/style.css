@@ -8,11 +8,10 @@ body {
 h1,h2,h3 {
 	line-height:1.1;
 }
-.code {
-	font-family: monospace;
+code, .code, .codeblock {
+	font-family: "Consolas", monospace;
 }
 .codeblock {
-	font-family: monospace;
 	display: block;
 	background: #eee;
 	border: 1px solid #ccc;
