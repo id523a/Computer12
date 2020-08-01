@@ -138,15 +138,15 @@ Conditions:
 
 00 to 0F - if register is zero
 10 - if zero flag / if equal
-11 - if carry / if unsigned >=
-12 - if sign
-13 - if overflow
+11 - if carry flag / if unsigned <
+12 - if sign flag / if negative
+13 - if overflow flag
 14 - reserved
 15 - reserved
 16 - reserved
 17 - reserved
 18 - if unsigned >
-19 - if signed >=
+19 - if signed <
 1A - if signed >
 1B - reserved
 1C - reserved
@@ -156,20 +156,20 @@ Conditions:
 
 20 to 2F - if register is not zero
 30 - if not zero flag / if not equal
-31 - if not carry / if unsigned <
-32 - if not sign
-33 - if not overflow
-34 - negation of 14 (reserved)
-35 - negation of 15 (reserved)
-36 - negation of 16 (reserved)
-37 - negation of 17 (reserved)
+31 - if not carry flag / if unsigned >=
+32 - if not sign flag / if not negative
+33 - if not overflow flag
+34 - negation of 0x14 (reserved)
+35 - negation of 0x15 (reserved)
+36 - negation of 0x16 (reserved)
+37 - negation of 0x17 (reserved)
 38 - if unsigned <=
-39 - if signed <
+39 - if signed >=
 3A - if signed <=
-3B - negation of 1B (reserved)
-3C - negation of 1C (reserved)
-3D - negation of 1D (reserved)
-3E - negation of 1E (reserved)
+3B - negation of 0x1B (reserved)
+3C - negation of 0x1C (reserved)
+3D - negation of 0x1D (reserved)
+3E - negation of 0x1E (reserved)
 3F - always false
 
 Load/store locations:
