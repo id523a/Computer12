@@ -1,0 +1,11 @@
+This project depends on several IP files for interfacing with a PS/2 keyboard
+and mouse. They are available free of charge, but they may not have been
+released under a license that allows me to package them directly in this repo.
+
+* debounce.vhd and ps2_keyboard.vhd from:
+https://www.digikey.com/eewiki/pages/viewpage.action?pageId=28278929
+
+* ps2_mouse.vhd and ps2_transceiver.vhd from:
+https://www.digikey.com/eewiki/pages/viewpage.action?pageId=70189075
+
+All four files must be placed in this directory.
