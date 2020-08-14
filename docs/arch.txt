@@ -81,7 +81,8 @@ Instructions:
 01100011dddd - rkr  dddd - Rotate right through carry
 01100100dddd - shl  dddd - Shift left, carry <- MSB, LSB <- zero
 01100101dddd - shr  dddd - Logical shift right, zero -> MSB, LSB -> carry
-01100110nnnn - flg  nnnn - Cause the next nnnn instructions to discard their main result and affect flags only
+011001100ddd - swp  0ddd - Swap the two half-words of the specified (near) register, or equivalently, rotate by 6 bits
+011001101nnn - flg  nnn - Cause the next nnn instructions to discard their main result and affect flags only
 01100111dddd - asr  dddd - Arithmetic shift right, sign -> MSB, LSB -> carry
 
 011010cccccc - if   cccccc - P = condition
@@ -124,7 +125,8 @@ Instructions:
 11100011dddd - crkr dddd
 11100100dddd - cshl dddd
 11100101dddd - cshr dddd
-11100110nnnn - cflg nnnn
+111001100ddd - cswp 0ddd
+111001101nnn - cflg nnn
 11100111dddd - casr dddd
 
 111010cccccc - ifa  cccccc - P = P AND condition
