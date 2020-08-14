@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Instruction - swp</title>
+		<link rel="stylesheet" href="../style.css">
+	</head>
+	<body>
+		<h1 id="summary-swp">Instruction: <code>swp</code></h1>
+		<code class="codeblock">swp Rd<br>cswp Rd</code>
+		<div class="bits">
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit bitfield3">Rd (3 bits, 0-7)</span>
+		</div>
+		<h2 id="action">Action</h2>
+		<p>This instruction takes one operand: a destination register <code>Rd</code>. <code>Rd</code> must be a 'near' register.
+		<br>The instruction swaps the most significant 6 bits of Rd with the least significant 6 bits. Equivalently, it performs a circular rotation of Rd by 6 bits.
+		It can be used to separately manipulate the upper and lower halves of a data word.</p>
+		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, this instruction has no effect.</p>
+		<h2 id="flags">Flags</h2>
+		<ul>
+			<li><b>Z:</b> Set to 1 if the value in Rd is zero, and set to 0 otherwise.</li>
+			<li><b>S:</b> Set to the most significant bit of Rd after the swap.</li>
+			<li><b>K:</b> Unchanged.</li>
+			<li><b>V:</b> Set to an unspecified value.</li>
+			<li><b>P:</b> Unchanged.</li>
+		</ul>
+	</body>
+</html>

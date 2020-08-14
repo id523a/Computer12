@@ -9,10 +9,10 @@
 		<h1 id="summary-flg">Instruction: <code>flg</code></h1>
 		<code class="codeblock">flg N<br>cflg N</code>
 		<div class="bits">
-			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit bitfield4">N (4 bits, 0-15)</span>
+			<span class="bit bitfield1">cond</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">0</span><span class="bit">1</span><span class="bit">1</span><span class="bit">0</span><span class="bit">1</span><span class="bit bitfield3">N (3 bits, 0-7)</span>
 		</div>
 		<h2 id="action">Action</h2>
-		<p>This instruction takes 1 immediate 4-bit operand, <code>N</code>, ranging from 0 to 15.
+		<p>This instruction takes 1 immediate 3-bit operand, <code>N</code>, ranging from 0 to 7.
 		<br>It causes the next <code>N</code> executed instructions to only affect processor flags, and to not write their results to any registers, or to memory. Any <a href="ld.html">load</a> or <a href="st.html">store</a> instructions that occur within the next <code>N</code> instructions will be treated as a no-op.</p>
 		<p>In combination with arithmetic instructions, this instruction is useful for performing numeric comparisons or bit testing without overwriting the values being compared. <code>cflg</code> can also be used to create conditional loads and stores.</p>
 		<p>If the instruction is conditional (<em>cond</em> = 1), and the P flag is 0, this instruction has no effect. That is, subsequent instructions will execute normally.</p>
