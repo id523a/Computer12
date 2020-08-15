@@ -65,8 +65,9 @@
 */timing/
 */testbench/
 */*_sim/
-incremental_db/
 db/
+greybox_tmp/
+incremental_db/
 output_files/
 simulation/
 PLLJ_PLLSPE_INFO.txt
