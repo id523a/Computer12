@@ -140,8 +140,8 @@ Conditions:
 
 00 to 0F - if register is zero
 10 - if zero flag / if equal
-11 - if carry flag / if unsigned <
-12 - if sign flag / if negative
+11 - if sign flag / if negative
+12 - if carry flag / if unsigned <
 13 - if overflow flag
 14 - reserved
 15 - reserved
@@ -158,8 +158,8 @@ Conditions:
 
 20 to 2F - if register is not zero
 30 - if not zero flag / if not equal
-31 - if not carry flag / if unsigned >=
-32 - if not sign flag / if not negative
+31 - if not sign flag / if not negative
+32 - if not carry flag / if unsigned >=
 33 - if not overflow flag
 34 - negation of 0x14 (reserved)
 35 - negation of 0x15 (reserved)
