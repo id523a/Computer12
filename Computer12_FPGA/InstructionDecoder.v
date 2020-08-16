@@ -51,13 +51,13 @@ module InstructionDecoder(
 			alu_op = {2'b01, instr[6:4]};
 		end
 		else if (is_load) begin // lda/ldb/ldc/ldd
-			dest_reg = {1'b1, instr[3:0]};
-			src_reg = {3'b000, instr[7:6]};
+			dest_reg = {3'b000, instr[7:6]};
+			src_reg = {1'b1, instr[3:0]};
 			read_src = is_special_reg;
 		end
 		else if (is_store) begin // sta/stb/stc/std
-			dest_reg = {3'b000, instr[7:6]};
-			src_reg = {1'b1, instr[3:0]};
+			dest_reg = {1'b1, instr[3:0]};
+			src_reg = {3'b000, instr[7:6]};
 			write_dest = is_special_reg;
 		end
 		else begin // if/ifa/ifo/ifx
