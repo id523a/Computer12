@@ -7,7 +7,7 @@ module Processor12(
 	output [23:0] address
 );
 	reg [2:0] state;
-	always @(posedge clk or negedge rst) begin
+	always @(posedge clk or negedge rst) begin : state_counter
 		if (!rst) begin
 			state <= 3'b000;
 		end
@@ -20,7 +20,12 @@ module Processor12(
 				state <= 3'b001;
 		end
 	end
-	assign data_out = {9'b0, state};
+	InstructionDecoder decoder(
+		.instr(data_in),
+		.dest_reg(data_out[4:0]),
+		.src_reg(data_out[9:5]),
+		.alu_cond(address[3:0])
+	);
 endmodule
 
 `timescale 1ns/1ps

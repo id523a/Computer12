@@ -139,6 +139,8 @@ Instructions:
 Conditions:
 
 00 to 0F - if register is zero
+07 - always false
+	(register 7 would normally be immediate value, but here it's zero)
 10 - if zero flag / if equal
 11 - if sign flag / if negative
 12 - if carry flag / if unsigned <
@@ -157,6 +159,8 @@ Conditions:
 1F - always true
 
 20 to 2F - if register is not zero
+27 - always false
+	(register 7 would normally be immediate value, but here it's zero)
 30 - if not zero flag / if not equal
 31 - if not sign flag / if not negative
 32 - if not carry flag / if unsigned >=

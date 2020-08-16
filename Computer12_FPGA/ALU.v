@@ -74,29 +74,31 @@ module ALU(
 			4'h8: cond_value = ~flg_in[0] & ~flg_in[2]; // Z clear and K clear / unsigned a>b
 			4'h9: cond_value = flg_in[1] ^ flg_in[3]; // S xor V / signed a<b
 			4'ha: cond_value = ~flg_in[0] & ~(flg_in[1] ^ flg_in[3]); // signed a>b
-			// Reserved: 4'hb - 4'he
+			// Reserved: 4'hb - 4'hf
 			default: cond_value = 1'b1;
 		endcase
 	end
 	
 	// Compute predicate flag (P)
 	// operation[4] indicates that the operation modifies the condition
-	// operation[3] indicates whether the condition is (0) based on flags or (1) result_zero
-	// operation[2] indicates whether to invert the value
-	// operation[1:0] indicates how this is combined with the existing value of the P flag
-	wire cond_op3 = operation[3] ? result_zero : cond_value;
-	wire cond_op2 = operation[2] ^ cond_op3;
+	// operation[0] indicates whether the condition is (0) result_zero or (1) based on flags
+	// operation[1] indicates whether to invert the value
+	// operation[3:2] indicates how the condition is combined with the existing value of the P flag
+
+	
+	wire cond_op0 = operation[0] ? cond_value : result_zero;
+	wire cond_op1 = operation[1] ^ cond_op0;
 	wire P_in = flg_in[4];
 	always @(*) begin : compute_p_flag
 		if (operation[4] == 1'b0) begin
 			P_out = P_in;
 		end
 		else begin
-			case (operation[1:0])
-				2'b00: P_out = cond_op2;
-				2'b01: P_out = P_in ^ cond_op2;
-				2'b10: P_out = P_in & cond_op2;
-				2'b11: P_out = P_in | cond_op2;
+			case (operation[3:2])
+				2'b00: P_out = cond_op1;
+				2'b01: P_out = P_in ^ cond_op1;
+				2'b10: P_out = P_in & cond_op1;
+				2'b11: P_out = P_in | cond_op1;
 			endcase
 		end
 	end
