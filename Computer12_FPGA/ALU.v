@@ -3,9 +3,9 @@ module ALU(
 	input [11:0] B,
 	input [4:0] operation,
 	input [3:0] condition,
-	input [3:0] flg_in,
+	input [4:0] flg_in,
 	output reg [11:0] Q,
-	output [3:0] flg_out
+	output [4:0] flg_out
 );
 	// Flag outputs
 	reg Z_out; // flag[0] = zero flag
