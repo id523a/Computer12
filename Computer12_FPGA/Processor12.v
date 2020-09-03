@@ -23,6 +23,7 @@ module Processor12(
 	
 	reg [11:0] instr_store;
 	wire [11:0] instr;
+	wire instr_conditional;
 	wire instr_has_immediate;
 	wire instr_mem_read;
 	wire instr_mem_write;
@@ -37,8 +38,14 @@ module Processor12(
 	wire [4:0] alu_flags_out;
 	reg [11:0] alu_temp;
 	
+	wire instr_execute = flags[4] | ~instr_conditional;
+	wire exec_read_dest = instr_read_dest & instr_execute;
+	wire exec_read_src = instr_read_src & instr_execute;
+	wire exec_write_dest = instr_write_dest & instr_execute;
+
 	InstructionDecoder instr_decoder_1(
 		.instr(instr),
+		.conditional(instr_conditional),
 		.has_immediate(instr_has_immediate),
 		.dest_reg(instr_dest_reg),
 		.src_reg(instr_src_reg),
@@ -106,7 +113,7 @@ module Processor12(
 				end
 				instr_store <= data_in;
 			end
-			else if (state[2] & (instr_dest_reg == 5'b01111) & instr_write_dest) begin
+			else if (state[2] & (instr_dest_reg == 5'b01111) & exec_write_dest) begin
 				IP <= {regfile_write_value, IPL_temp};
 			end
 		end
@@ -148,7 +155,7 @@ module Processor12(
 		end
 	end
 	
-	assign read_IP = (instr_dest_reg == 5'b01110 && instr_read_dest) || (instr_src_reg == 5'b01110 && instr_read_src);
+	assign read_IP = (instr_dest_reg == 5'b01110 && exec_read_dest) || (instr_src_reg == 5'b01110 && exec_read_src);
 	always @(posedge clk or negedge rst) begin : register_file_write
 		if (!rst) begin
 			{A, B, C, D, E, F, G} <= 0;
@@ -160,7 +167,7 @@ module Processor12(
 				IPH_temp <= IP[23:12];
 			end
 			flags <= alu_flags_out;
-			if (instr_write_dest) begin
+			if (exec_write_dest) begin
 				casez (instr_dest_reg)
 					5'b00000: A <= regfile_write_value;
 					5'b00001: B <= regfile_write_value;
