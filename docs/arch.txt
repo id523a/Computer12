@@ -139,7 +139,7 @@ Instructions:
 Conditions:
 
 00 to 0F - if register is zero
-07 - always false
+07 - always true
 	(register 7 would normally be immediate value, but here it's zero)
 10 - if zero flag / if equal
 11 - if sign flag / if negative
