@@ -11,10 +11,6 @@ module Processor12(
 	reg [23:0] IP, AP, BP, CP;
 	reg [11:0] A, B, C, D, E, F, G, IPH_temp, IPL_temp;
 	
-	initial begin : monitor_registers
-		$monitor("%dps: IP=%h A=%h B=%h C=%h D=%h PVKSZ=%b", $time, IP, A, B, C, D, flags);
-	end
-	
 	// bit 5 of regfile_addr_read indicates whether the register is a destination (0) or a source (1)
 	wire [5:0] regfile_addr_read;
 	reg [11:0] regfile_read_value;
@@ -67,6 +63,16 @@ module Processor12(
 		.Q(regfile_write_value),
 		.flg_out(alu_flags_out)
 	);
+	
+	always @(IP, A, B, C, D, flags) begin : monitor_registers
+		reg [39:0] flags_display;
+		flags_display[39:32] = flags[4] ? "P" : " ";
+		flags_display[31:24] = flags[3] ? "V" : " ";
+		flags_display[23:16] = flags[2] ? "K" : " ";
+		flags_display[15:8]  = flags[1] ? "S" : " ";
+		flags_display[7:0]   = flags[0] ? "Z" : " ";
+		$display("%dps: IP=%o A=%o B=%o C=%o D=%o %s", $time, IP, A, B, C, D, flags_display);
+	end
 	
 	always @(posedge clk or negedge rst) begin : state_counter
 		if (!rst) begin
