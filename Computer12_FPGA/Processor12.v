@@ -5,9 +5,9 @@ module Processor12(
 	input [11:0] data_in,
 	output [11:0] data_out,
 	output reg [23:0] address,
-	output reg mem_write,
-	output reg [2:0] state
+	output reg mem_write
 );
+	reg [2:0] state;
 	reg [23:0] IP, AP, BP, CP;
 	reg [11:0] A, B, C, D, E, F, G, IPH_temp, IPL_temp;
 	
@@ -30,14 +30,15 @@ module Processor12(
 	wire [4:0] instr_alu_op;
 	wire [3:0] instr_alu_cond;
 
-	reg [4:0] flags = 5'b0;
+	reg [2:0] flags_only;
+	reg [4:0] flags;
 	wire [4:0] alu_flags_out;
 	reg [11:0] alu_temp;
 	
 	wire instr_execute = flags[4] | ~instr_conditional;
 	wire exec_read_dest = instr_read_dest & instr_execute;
 	wire exec_read_src = instr_read_src & instr_execute;
-	wire exec_write_dest = instr_write_dest & instr_execute;
+	wire exec_write_dest = instr_write_dest & (~|flags_only) & instr_execute;
 
 	InstructionDecoder instr_decoder_1(
 		.instr(instr),
@@ -64,14 +65,14 @@ module Processor12(
 		.flg_out(alu_flags_out)
 	);
 	
-	always @(IP, A, B, C, D, flags) begin : monitor_registers
+	always @(IP, A, B, C, D, flags_only, flags) begin : monitor_registers
 		reg [39:0] flags_display;
 		flags_display[39:32] = flags[0] ? "Z" : " ";
 		flags_display[31:24] = flags[1] ? "S" : " ";
 		flags_display[23:16] = flags[2] ? "K" : " ";
 		flags_display[15:8]  = flags[3] ? "V" : " ";
 		flags_display[7:0]   = flags[4] ? "P" : " ";
-		$display("%dps: IP=%o A=%o B=%o C=%o D=%o %s", $time, IP, A, B, C, D, flags_display);
+		$display("%dps: IP=%o A=%o B=%o C=%o D=%o FO=%o %s", $time, IP, A, B, C, D, flags_only, flags_display);
 	end
 	
 	always @(posedge clk or negedge rst) begin : state_counter
@@ -111,11 +112,11 @@ module Processor12(
 		end
 		else begin
 			if (state[0]) begin
-				IP <= IP + 1;
+				IP <= IP + 24'o1;
 			end
 			else if (state[1]) begin
 				if (instr_has_immediate) begin
-					IP <= IP + 1;
+					IP <= IP + 24'o1;
 				end
 				instr_store <= data_in;
 			end
@@ -167,12 +168,15 @@ module Processor12(
 			{A, B, C, D, E, F, G} <= 0;
 			{IPH_temp, IPL_temp} <= 0;
 			{AP, BP, CP} <= 0;
+			flags <= 5'b0;
 		end
 		else if (state[2]) begin
 			if (read_IP) begin
 				IPH_temp <= IP[23:12];
 			end
-			flags <= alu_flags_out;
+			if (instr_execute) begin
+				flags <= alu_flags_out;
+			end
 			if (exec_write_dest) begin
 				casez (instr_dest_reg)
 					5'b00000: A <= regfile_write_value;
@@ -196,6 +200,20 @@ module Processor12(
 		end
 	end
 	
+	always @(posedge clk or negedge rst) begin : handle_flags_only_count
+		if (!rst) begin
+			flags_only <= 3'o0;
+		end
+		else if (state[2]) begin
+			if (instr_execute & instr_write_dest & instr_dest_reg == 5'b11111) begin
+				flags_only <= instr[2:0];
+			end
+			else begin
+				flags_only <= |flags_only ? (flags_only - 3'o1) : 3'o0;
+			end
+		end
+	end
+	
 	assign data_out = instr;
 endmodule
 
@@ -207,7 +225,6 @@ module Processor12_test();
 	wire [11:0] data_p2m;
 	wire mem_write;
 	wire [23:0] address;
-	wire [2:0] state;
 	
 	TestMemory testMem(
 		.clock(clk),
@@ -223,8 +240,7 @@ module Processor12_test();
 		.irq(24'b0),
 		.data_in(data_m2p),
 		.data_out(data_p2m),
-		.address(address),
-		.state(state)
+		.address(address)
 	);
 	initial begin
 		clk = 0;
