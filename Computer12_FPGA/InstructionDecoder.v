@@ -24,11 +24,11 @@ module InstructionDecoder(
 	wire is_load_store = instr[10:8] == 3'b111;
 	wire is_load = is_load_store & ~instr[11];
 	wire is_store = is_load_store & instr[11];
-	wire is_special_reg = instr[5:0] < 6'h0a;
+	wire is_special_reg = instr[5:0] < 6'o12;
 	assign conditional = instr[11] & (is_arithmetic | is_shift);
 	
 	always @(*) begin : decode_alu
-		alu_op = 5'h00;
+		alu_op = 5'o00;
 		alu_cond = 0;
 		has_immediate = 0;
 		read_dest = 0;
@@ -38,12 +38,12 @@ module InstructionDecoder(
 			dest_reg = {1'b0, instr[10], instr[5:3]};
 			src_reg = {1'b0, instr[9], instr[2:0]};
 			alu_op = {2'b00, instr[8:6]};
-			has_immediate = (src_reg == 5'h07);
-			read_dest = alu_op != 5'h00;
+			has_immediate = (src_reg == 5'o07);
+			read_dest = alu_op != 5'o00;
 		end
 		else if (is_flg) begin
-			dest_reg = 5'h1f;
-			src_reg = 5'h1f;
+			dest_reg = 5'o37;
+			src_reg = 5'o37;
 		end
 		else if (is_shift) begin
 			dest_reg = instr[3:0];
@@ -78,12 +78,12 @@ module InstructionDecoder(
 		mem_pre_decrement = 0;
 		if (is_load_store & ~is_special_reg) begin
 			casez (instr[5:0])
-				6'h0a: begin mem_base = 2'b01; mem_post_increment = 1; end
-				6'h0b: begin mem_base = 2'b01; mem_pre_decrement = 1; end
-				6'h0c: begin mem_base = 2'b10; mem_post_increment = 1; end
-				6'h0d: begin mem_base = 2'b10; mem_pre_decrement = 1; end
-				6'h0e: begin mem_base = 2'b11; mem_post_increment = 1; end
-				6'h0f: begin mem_base = 2'b11; mem_pre_decrement = 1; end
+				6'o12: begin mem_base = 2'b01; mem_post_increment = 1; end
+				6'o13: begin mem_base = 2'b01; mem_pre_decrement = 1; end
+				6'o14: begin mem_base = 2'b10; mem_post_increment = 1; end
+				6'o15: begin mem_base = 2'b10; mem_pre_decrement = 1; end
+				6'o16: begin mem_base = 2'b11; mem_post_increment = 1; end
+				6'o17: begin mem_base = 2'b11; mem_pre_decrement = 1; end
 				default: begin mem_base = instr[5:4]; mem_offset = instr[3:0]; end
 			endcase
 		end

@@ -27,7 +27,7 @@ module Processor12(
 	wire instr_has_immediate;
 	wire instr_mem_read;
 	wire instr_mem_write;
-	wire [23:0] data_address = 24'h123456;
+	wire [23:0] data_address = 24'o01234567;
 	wire [4:0] instr_dest_reg;
 	wire instr_read_dest, instr_read_src, instr_write_dest;
 	wire [4:0] instr_src_reg;
@@ -83,7 +83,7 @@ module Processor12(
 	end
 
 	always @(*) begin : memory_addressing
-		address = 24'hxxxxxx;
+		address = 24'oxxxxxxxx;
 		mem_write = 0;
 		if (state[0]) begin
 			address = IP;
@@ -132,8 +132,8 @@ module Processor12(
 			6'bz00100: regfile_read_value = E;
 			6'bz00101: regfile_read_value = F;
 			6'bz00110: regfile_read_value = G;
-			6'b000111: regfile_read_value = 12'h000;
-			6'b100111: regfile_read_value = (instr_has_immediate & state[2]) ? data_in : 12'h000;
+			6'b000111: regfile_read_value = 12'o0000;
+			6'b100111: regfile_read_value = (instr_has_immediate & state[2]) ? data_in : 12'o0000;
 			
 			6'bz01000: regfile_read_value = AP[11:0];
 			6'bz01001: regfile_read_value = AP[23:12];

@@ -20,21 +20,21 @@ module ALU(
 	always @(*) begin : compute_operation_carry
 		K_out = K_in;
 		case (operation)
-			5'h01: /*AND*/ Q = A & B;
-			5'h02: /*OR */ Q = A | B;
-			5'h03: /*XOR*/ Q = A ^ B;
-			5'h04: /*ADD*/ {K_out, Q} = {1'b0, A} + B;
-			5'h05: /*ADK*/ {K_out, Q} = {1'b0, A} + B + K_in;
-			5'h06: /*SUB*/ {K_out, Q} = {1'b0, A} - B;
-			5'h07: /*SBK*/ {K_out, Q} = {1'b0, A} - B - K_in;
-			5'h08: /*ROL*/ Q = {B[10:0], B[11]};
-			5'h09: /*ROR*/ Q = {B[0], B[11:1]};
-			5'h0a: /*RKL*/ {K_out, Q} = {B, K_in};
-			5'h0b: /*RKR*/ {Q, K_out} = {K_in, B};
-			5'h0c: /*SHL*/ {K_out, Q} = {B, 1'b0};
-			5'h0d: /*SHR*/ {Q, K_out} = {1'b0, B};
-			5'h0e: /*SWP*/ Q = {B[5:0], B[11:6]};
-			5'h0f: /*ASR*/ {Q, K_out} = {B[11], B};
+			5'o01: /*AND*/ Q = A & B;
+			5'o02: /*OR */ Q = A | B;
+			5'o03: /*XOR*/ Q = A ^ B;
+			5'o04: /*ADD*/ {K_out, Q} = {1'b0, A} + B;
+			5'o05: /*ADK*/ {K_out, Q} = {1'b0, A} + B + K_in;
+			5'o06: /*SUB*/ {K_out, Q} = {1'b0, A} - B;
+			5'o07: /*SBK*/ {K_out, Q} = {1'b0, A} - B - K_in;
+			5'o10: /*ROL*/ Q = {B[10:0], B[11]};
+			5'o11: /*ROR*/ Q = {B[0], B[11:1]};
+			5'o12: /*RKL*/ {K_out, Q} = {B, K_in};
+			5'o13: /*RKR*/ {Q, K_out} = {K_in, B};
+			5'o14: /*SHL*/ {K_out, Q} = {B, 1'b0};
+			5'o15: /*SHR*/ {Q, K_out} = {1'b0, B};
+			5'o16: /*SWP*/ Q = {B[5:0], B[11:6]};
+			5'o17: /*ASR*/ {Q, K_out} = {B[11], B};
 			default: /*MOV*/ Q = B;
 		endcase
 	end
@@ -42,7 +42,7 @@ module ALU(
 	// Compute zero and sign flags (Z, S)
 	wire result_zero = (Q == 0);
 	always @(*) begin : compute_zero_sign
-		if (operation == 5'h00 || operation[4] == 1'b1) begin
+		if (operation == 5'o00 || operation[4] == 1'b1) begin
 			Z_out = flg_in[0];
 			S_out = flg_in[1];
 		end
@@ -66,15 +66,15 @@ module ALU(
 	reg cond_value;
 	always @(*) begin : compute_cond_value
 		case (condition)
-			4'h0: cond_value = flg_in[0]; // Z flag / equal
-			4'h1: cond_value = flg_in[1]; // S flag
-			4'h2: cond_value = flg_in[2]; // K flag / unsigned a<b
-			4'h3: cond_value = flg_in[3]; // V flag
-			// Reserved: 4'h4 - 4'h7
-			4'h8: cond_value = ~flg_in[0] & ~flg_in[2]; // Z clear and K clear / unsigned a>b
-			4'h9: cond_value = flg_in[1] ^ flg_in[3]; // S xor V / signed a<b
-			4'ha: cond_value = ~flg_in[0] & ~(flg_in[1] ^ flg_in[3]); // signed a>b
-			// Reserved: 4'hb - 4'hf
+			4'o00: cond_value = flg_in[0]; // Z flag / equal
+			4'o01: cond_value = flg_in[1]; // S flag
+			4'o02: cond_value = flg_in[2]; // K flag / unsigned a<b
+			4'o03: cond_value = flg_in[3]; // V flag
+			// Reserved: 4'o04 - 4'o07
+			4'o10: cond_value = ~flg_in[0] & ~flg_in[2]; // Z clear and K clear / unsigned a>b
+			4'o11: cond_value = flg_in[1] ^ flg_in[3]; // S xor V / signed a<b
+			4'o12: cond_value = ~flg_in[0] & ~(flg_in[1] ^ flg_in[3]); // signed a>b
+			// Reserved: 4'o13 - 4'o17
 			default: cond_value = 1'b1;
 		endcase
 	end
