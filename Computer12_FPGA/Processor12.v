@@ -66,11 +66,11 @@ module Processor12(
 	
 	always @(IP, A, B, C, D, flags) begin : monitor_registers
 		reg [39:0] flags_display;
-		flags_display[39:32] = flags[4] ? "P" : " ";
-		flags_display[31:24] = flags[3] ? "V" : " ";
+		flags_display[39:32] = flags[0] ? "Z" : " ";
+		flags_display[31:24] = flags[1] ? "S" : " ";
 		flags_display[23:16] = flags[2] ? "K" : " ";
-		flags_display[15:8]  = flags[1] ? "S" : " ";
-		flags_display[7:0]   = flags[0] ? "Z" : " ";
+		flags_display[15:8]  = flags[3] ? "V" : " ";
+		flags_display[7:0]   = flags[4] ? "P" : " ";
 		$display("%dps: IP=%o A=%o B=%o C=%o D=%o %s", $time, IP, A, B, C, D, flags_display);
 	end
 	
