@@ -1,17 +1,17 @@
-Clock speed: 20 MHz
-Pixel rate: 20 MHz
+Clock speed: 25.2 MHz
+Pixel rate: 12.6 MHz
 Horizontal timing:
-	Sync pulse: 64 px
-	Back porch: 52 px
-	Visible area: 384 px
-	Front porch: 28 px
-	Total: 528 px
+	Sync pulse: 48 px
+	Back porch: 24 px
+	Visible area: 320 px
+	Front porch: 8 px
+	Total: 400 px
 Vertical timing:
-	Sync pulse: 4 lines
-	Back porch: 35 lines
-	Visible area: 576 lines
-	Front porch: 13 lines
-	Total: 628 lines
+	Sync pulse: 2 lines
+	Back porch: 33 lines
+	Visible area: 480 lines
+	Front porch: 10 lines
+	Total: 525 lines
 
 Flags:
 Zero flag (Z)
@@ -22,23 +22,23 @@ Predicate flag (P)
 
 Registers:
 
-0 - A (general purpose)
-1 - B (general purpose)
-2 - C (general purpose)
-3 - D (general purpose)
-4 - E (general purpose)
-5 - F (general purpose)
-6 - G (general purpose)
-7 - Immediate value (as source)
+00 - A (general purpose)
+01 - B (general purpose)
+02 - C (general purpose)
+03 - D (general purpose)
+04 - E (general purpose)
+05 - F (general purpose)
+06 - G (general purpose)
+07 - Immediate value (as source)
 	Zero/Discard (as destination)
-8 - APL (pointer A, low word)
-9 - APH (pointer A, high word)
-A - BPL (pointer B, low word)
-B - BPH (pointer B, high word)
-C - CPL (pointer C, low word)
-D - CPH (pointer C, high word)
-E - IPL (instruction pointer, low word) *
-F - IPH (instruction pointer, high word) *
+10 - APL (pointer A, low word)
+11 - APH (pointer A, high word)
+12 - BPL (pointer B, low word)
+13 - BPH (pointer B, high word)
+14 - CPL (pointer C, low word)
+15 - CPH (pointer C, high word)
+16 - IPL (instruction pointer, low word) *
+17 - IPH (instruction pointer, high word) *
 
 * When IPL is read, IPH_tmp is set to the corresponding upper bits. The value that is read points immediately after the current instruction.
   When IPL is written to, write the value to IPL_tmp.
@@ -138,45 +138,45 @@ Instructions:
 
 Conditions:
 
-00 to 0F - if register is zero
+00 to 17 - if register is zero
 07 - always true
 	(register 7 would normally be immediate value, but here it's zero)
-10 - if zero flag / if equal
-11 - if sign flag / if negative
-12 - if carry flag / if unsigned <
-13 - if overflow flag
-14 - reserved
-15 - reserved
-16 - reserved
-17 - reserved
-18 - if unsigned >
-19 - if signed <
-1A - if signed >
-1B - reserved
-1C - reserved
-1D - reserved
-1E - reserved
-1F - always true
+20 - if zero flag / if equal
+21 - if sign flag / if negative
+22 - if carry flag / if unsigned <
+23 - if overflow flag
+24 - reserved
+25 - reserved
+26 - reserved
+27 - reserved
+30 - if unsigned >
+31 - if signed <
+32 - if signed >
+33 - reserved
+34 - reserved
+35 - reserved
+36 - reserved
+37 - always true
 
-20 to 2F - if register is not zero
-27 - always false
+40 to 57 - if register is not zero
+47 - always false
 	(register 7 would normally be immediate value, but here it's zero)
-30 - if not zero flag / if not equal
-31 - if not sign flag / if not negative
-32 - if not carry flag / if unsigned >=
-33 - if not overflow flag
-34 - negation of 0x14 (reserved)
-35 - negation of 0x15 (reserved)
-36 - negation of 0x16 (reserved)
-37 - negation of 0x17 (reserved)
-38 - if unsigned <=
-39 - if signed >=
-3A - if signed <=
-3B - negation of 0x1B (reserved)
-3C - negation of 0x1C (reserved)
-3D - negation of 0x1D (reserved)
-3E - negation of 0x1E (reserved)
-3F - always false
+60 - if not zero flag / if not equal
+61 - if not sign flag / if not negative
+62 - if not carry flag / if unsigned >=
+63 - if not overflow flag
+64 - negation of 0x14 (reserved)
+65 - negation of 0x15 (reserved)
+66 - negation of 0x16 (reserved)
+67 - negation of 0x17 (reserved)
+70 - if unsigned <=
+71 - if signed >=
+72 - if signed <=
+73 - negation of 0x1B (reserved)
+74 - negation of 0x1C (reserved)
+75 - negation of 0x1D (reserved)
+76 - negation of 0x1E (reserved)
+77 - always false
 
 Load/store locations:
 
@@ -192,49 +192,18 @@ Load/store locations:
 05: Reserved
 06: Reserved
 07: Reserved
-08: [IM0] Interrupt mask register 0, (interrupts 0-11)
-09: [IM1] Interrupt mask register 1, (interrupts 12-23)
-0A: [AP++] (Memory at location APH:APL, postincrement)
-0B: [--AP] (Memory at location APH:APL, predecrement)
-0C: [BP++] (Memory at location BPH:BPL, postincrement)
-0D: [--BP] (Memory at location BPH:BPL, predecrement)
-0E: [CP++] (Memory at location CPH:CPL, postincrement)
-0F: [--CP] (Memory at location CPH:CPL, predecrement)
+10: [IM0] Interrupt mask register 0 (interrupts zero to eleven)
+11: [IM1] Interrupt mask register 1 (interrupts twelve to twenty-three)
+12: [AP++] (Memory at location APH:APL, postincrement)
+13: [--AP] (Memory at location APH:APL, predecrement)
+14: [BP++] (Memory at location BPH:BPL, postincrement)
+15: [--BP] (Memory at location BPH:BPL, predecrement)
+16: [CP++] (Memory at location CPH:CPL, postincrement)
+17: [--CP] (Memory at location CPH:CPL, predecrement)
 
-10-1F: [AP], [AP+0] ... [AP+15] (Memory at location APH:APL, plus 0-15 word offset)
+20-37: [AP], [AP+0] ... [AP+15] (Memory at location APH:APL, plus zero to fifteen word offset)
 
-20-2F: [BP], [BP+0] ... [BP+15] (Memory at location BPH:BPL, plus 0-15 word offset)
+40-57: [BP], [BP+0] ... [BP+15] (Memory at location BPH:BPL, plus zero to fifteen word offset)
 
-30-3F: [CP], [CP+0] ... [CP+15] (Memory at location CPH:CPL, plus 0-15 word offset)
-
-Memory layout:
-Page 000:
-	000-FFF: Always invalid access
-Page 001:
-	000-FFF: Reserved
-Page 002:
-	000-7DF: Data (Boot) ROM
-	7E0-7FF: Base interrupt handler
-	800-FFF: Graphics ROM (chars #000 to #0FF)
-Page 003:
-	000-5FF: Character codes
-	600-7FF: User memory
-	800-DFF: Screen colors
-	E00-E3F: Palette
-	E40-FFF: User memory
-Page 004:
-	000-FFF: Data RAM
-Page 005:
-	000-FFF: Data RAM
-Page 006:
-	000-FFF: Data RAM
-Page 007:
-	000-FFF: Data RAM
-Page 008:
-	000-FFF: Raw graphics RAM (chars #800 to #9FF)
-Page 009:
-	000-FFF: Raw graphics RAM (chars #A00 to #BFF)
-Page 00A:
-	000-FFF: Raw graphics RAM (chars #C00 to #DFF)
-Page 00B:
-	000-FFF: Raw graphics RAM (chars #E00 to #FFF)
+60-77: [CP], [CP+0] ... [CP+15] (Memory at location CPH:CPL, plus zero to fifteen word offset)
+60-77: [CP], [CP+0] ... [CP+15] (Memory at location CPH:CPL, plus zero to fifteen word offset)
