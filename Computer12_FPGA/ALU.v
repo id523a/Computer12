@@ -47,7 +47,13 @@ module ALU(
 			S_out = flg_in[1];
 		end
 		else begin
-			Z_out = result_zero;
+			// For ADK and SBK, zero flag can only be cleared, not set
+			if (operation == 5'o05 | operation == 5'o07) begin
+				Z_out = flg_in[0] & result_zero;
+			end
+			else begin
+				Z_out = result_zero;
+			end
 			S_out = Q[11];
 		end
 	end
