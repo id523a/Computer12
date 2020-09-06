@@ -8,6 +8,7 @@ module Processor12(
 	output reg mem_read,
 	output reg mem_write
 );
+	wire processor_run = 1'b1;
 	reg [2:0] state;
 	reg [23:0] IP, AP, BP, CP;
 	wire [23:0] IP_next;
@@ -95,7 +96,7 @@ module Processor12(
 			state <= 3'b000;
 		end
 		else begin
-			if (state[0])
+			if (state[0] & processor_run)
 				state <= 3'b010;
 			else if (state[1])
 				state <= 3'b100;
@@ -147,7 +148,7 @@ module Processor12(
 			instr_store <= 0;
 		end
 		else begin
-			if (state[0]) begin
+			if (state[0] & processor_run) begin
 				IP <= IP_next;
 			end
 			else if (state[1]) begin
