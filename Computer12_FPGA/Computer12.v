@@ -1,12 +1,34 @@
 module Computer12(
-	input clk,
-	input rst,
-	output [11:0] data_p2m
+	input clk50,
+	input rst_in,
+	output [11:0] video_rgb,
+	output video_hsync,
+	output video_vsync
 );
-	wire [23:0] address;
-	wire [11:0] data_m2p;
-	wire mem_read;
-	wire mem_write;
-	TestMemory tm(address[11:0], clk, data_p2m, mem_write, data_m2p);
-	Processor12 DUT(clk, rst, 24'b0, data_m2p, data_p2m, address, mem_read, mem_write);
+	wire pll_locked;
+	wire rst = rst_in & pll_locked;
+	wire clk;
+	MainPLL main_pll_1(
+		.areset(~rst_in),
+		.inclk0(clk50),
+		.c0(clk),
+		.locked(pll_locked)
+	);
+
+	wire [13:0] mem_addr;
+	wire [11:0] mem_data;
+	VideoTestMemory mem(
+		.address(mem_addr),
+		.clock(clk),
+		.q(mem_data)
+	);
+	VideoGenerator vgen(
+		.clk(clk),
+		.rst(rst),
+		.addr(mem_addr),
+		.data(mem_data),
+		.video_rgb(video_rgb),
+		.video_hsync(video_hsync),
+		.video_vsync(video_vsync)
+	);
 endmodule
