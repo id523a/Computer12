@@ -1,0 +1,38 @@
+For each 12-bit row of pixels,
+ - Read palette indices 0 and 1 (storage required: 0 bits)
+ - Read palette indices 2 and 3 (storage required: 0 bits)
+ - Read pixel data for first 6 pixels (storage required: 6 bits)
+ - Read pixel data for next 6 pixels (storage required: 6 bits)
+ - Read palette color 0 (storage required: 12 bits)
+ - Read palette color 1 (storage required: 12 bits)
+ - Read palette color 2 (storage required: 12 bits)
+ - Read palette color 3 (storage required: 12 bits)
+
+Ideal blank time: 272 pixels
+
+Front porch second half: 32 pixels
+Sync pulse: 72 pixels (start at 32, end at 104)
+Back porch: 168 pixels
+Active pixel time: 720 pixels (start at 272, end at 992)
+Front porch first half: 32 pixels
+
+Video RAM layout:
+
+00000..27777: framebuffer
+	00000: Pixel data, (x=0..5, y=0..1)
+	00001: Pixel data, (x=0..5, y=2..3)
+	00002: Pixel data, (x=0..5, y=4..5)
+	00003: Palette indices 0 and 1
+	00004: Pixel data, (x=6..11, y=0..1)
+	00005: Pixel data, (x=6..11, y=2..3)
+	00006: Pixel data, (x=6..11, y=4..5)
+	00007: Palette indices 2 and 3
+	...
+	00400: Pixel data, (x=0..5, y=6..7)
+
+30000..30077: Palette
+	30000: Palette color 0
+	30001: Palette color 1
+
+30100: Pixel offsets
+
