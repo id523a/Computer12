@@ -43,6 +43,30 @@ module VideoScanlineMemory(
 	end
 endmodule
 
+module PixelTranslator(
+	input mode,
+	input [5:0] in_a,
+	input [5:0] in_b,
+	output reg [11:0] out_a,
+	output reg [11:0] out_b
+);
+	integer i;
+	always @(*) begin
+		if (mode) begin
+			for (i = 0; i < 6; i = i + 2) begin
+				out_a[2*i +: 4] = {2{in_a[i +: 2]}};
+				out_b[2*i +: 4] = {2{in_b[i +: 2]}};
+			end
+		end
+		else begin
+			for (i = 0; i < 6; i = i + 1) begin
+				out_a[2*i +: 2] = {1'b0, in_a[i]};
+				out_b[2*i +: 2] = {1'b1, in_b[i]};
+			end
+		end
+	end
+endmodule
+
 module VideoGenerator(
 	input clk,
 	input rst,
@@ -74,14 +98,14 @@ module VideoGenerator(
 	wire vga_y_wrap = (vga_y == 624);
 	wire [9:0] next_vga_y = vga_y_wrap ? 10'd0 : (vga_y + 10'd1);
 	wire video_vsync_line = (vga_y >= 571) & (vga_y < 573);
-	wire video_active = (vga_x >= 272) & (vga_x < 992) & (vga_y < 540);
-	assign video_hsync = (vga_x >= 32) & (vga_x < 104);
+	wire video_active = (vga_x >= 304) & (vga_y < 540);
+	assign video_hsync = (vga_x >= 64) & (vga_x < 136);
 	assign video_rgb = video_color & {12{video_active}};
 	
-	reg [7:0] vmem_addr;
-	wire [11:0] vmem_data_in = 12'b0;
-	wire vmem_write = 1'b0;
-	wire [11:0] vmem_data_out;	
+	reg [7:0] scmem_addr;
+	wire [11:0] scmem_data_in = 12'b0;
+	wire scmem_write = 1'b0;
+	wire [11:0] scmem_data_out;	
 	reg [11:0] pixels;
 	
 	BlockPosAdder y_pos_adder(
@@ -93,12 +117,12 @@ module VideoGenerator(
 		.q_pixel(y_pixel)
 	);
 	
-	VideoScanlineMemory vmem(
-		.address(vmem_addr),
+	VideoScanlineMemory scmem(
+		.address(scmem_addr),
 		.clock(clk),
-		.data(vmem_data_in),
-		.wren(vmem_write),
-		.q(vmem_data_out)
+		.data(scmem_data_in),
+		.wren(scmem_write),
+		.q(scmem_data_out)
 	);
 	
 	always @(posedge clk or negedge rst) begin : vga_timing
@@ -111,7 +135,7 @@ module VideoGenerator(
 			if (vga_x == 1023) begin
 				vga_y <= next_vga_y;
 			end
-			if (vga_x == 31) begin
+			if (vga_x == 63) begin
 				video_vsync <= video_vsync_line;
 			end
 		end
@@ -121,7 +145,7 @@ module VideoGenerator(
 		if (!rst) begin
 		end
 		else begin
-			if (vga_x == 257) begin
+			if (vga_x == 289) begin
 				x_pixel <= x_pixel_start;
 				x_block <= x_block_start - 6'd1;
 			end
@@ -148,22 +172,24 @@ module VideoGenerator(
 		end
 	end
 	
-	always @(*) begin
-		vmem_addr = 8'b0;
-		if (~x_pixel[0]) begin
-			vmem_addr = {1'b0, x_block[5:1], pixels[2 * x_pixel[3:1] +: 2]};
-		end
-		else if (x_pixel == 9) begin
-			vmem_addr = {2'b10, x_block_next};
+	always @(*) begin : scmem_addressing
+		scmem_addr = 8'b0;
+		if (vga_x >= 290) begin
+			if (~x_pixel[0]) begin
+				scmem_addr = {1'b0, x_block[5:1], pixels[2 * x_pixel[3:1] +: 2]};
+			end
+			else if (x_pixel == 9) begin
+				scmem_addr = {2'b10, x_block_next};
+			end
 		end
 	end
 
-	always @(posedge clk) begin
+	always @(posedge clk) begin : scmem_display
 		if (x_pixel[0]) begin
-			video_color <= vmem_data_out;
+			video_color <= scmem_data_out;
 		end
 		else if (x_pixel == 10) begin
-			pixels <= vmem_data_out;
+			pixels <= scmem_data_out;
 		end
 	end
 endmodule

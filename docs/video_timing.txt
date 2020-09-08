@@ -8,13 +8,12 @@ For each 12-bit row of pixels,
  - Read palette color 2 (storage required: 12 bits)
  - Read palette color 3 (storage required: 12 bits)
 
-Ideal blank time: 272 pixels
+Blank time: 272 pixels
 
-Front porch second half: 32 pixels
-Sync pulse: 72 pixels (start at 32, end at 104)
+Front porch: 64 pixels
+Sync pulse: 72 pixels (start at 64, end at 136)
 Back porch: 168 pixels
-Active pixel time: 720 pixels (start at 272, end at 992)
-Front porch first half: 32 pixels
+Active pixel time: 720 pixels (start at 304, end at 1024)
 
 Video RAM layout:
 

@@ -86,7 +86,7 @@ module VideoTestMemory (
 		altsyncram_component.clock_enable_output_a = "BYPASS",
 		altsyncram_component.init_file = "VideoTestMemory.mif",
 		altsyncram_component.intended_device_family = "MAX 10",
-		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
+		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=VRAM",
 		altsyncram_component.lpm_type = "altsyncram",
 		altsyncram_component.numwords_a = 16384,
 		altsyncram_component.operation_mode = "ROM",
@@ -116,8 +116,8 @@ endmodule
 // Retrieval info: PRIVATE: INIT_FILE_LAYOUT STRING "PORT_A"
 // Retrieval info: PRIVATE: INIT_TO_SIM_X NUMERIC "0"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "MAX 10"
-// Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
-// Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
+// Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "1"
+// Retrieval info: PRIVATE: JTAG_ID STRING "VRAM"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
 // Retrieval info: PRIVATE: MIFfilename STRING "VideoTestMemory.mif"
 // Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "16384"
@@ -136,7 +136,7 @@ endmodule
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: INIT_FILE STRING "VideoTestMemory.mif"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "MAX 10"
-// Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
+// Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=VRAM"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
 // Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "16384"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "ROM"
