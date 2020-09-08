@@ -25,8 +25,8 @@ module Computer12(
 	VideoGenerator vgen(
 		.clk(clk),
 		.rst(rst),
-		.addr(mem_addr),
-		.data(mem_data),
+		.vmem_addr(mem_addr),
+		.vmem_data(mem_data),
 		.video_rgb(video_rgb),
 		.video_hsync(video_hsync),
 		.video_vsync(video_vsync)

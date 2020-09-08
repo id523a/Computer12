@@ -1,8 +1,8 @@
 For each 12-bit row of pixels,
- - Read palette indices 0 and 1 (storage required: 0 bits)
- - Read palette indices 2 and 3 (storage required: 0 bits)
  - Read pixel data for first 6 pixels (storage required: 6 bits)
  - Read pixel data for next 6 pixels (storage required: 6 bits)
+ - Read palette indices 0 and 1 (storage required: 0 bits)
+ - Read palette indices 2 and 3 (storage required: 0 bits)
  - Read palette color 0 (storage required: 12 bits)
  - Read palette color 1 (storage required: 12 bits)
  - Read palette color 2 (storage required: 12 bits)
