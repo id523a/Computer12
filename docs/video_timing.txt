@@ -32,6 +32,13 @@ Video RAM layout:
 30000..30077: Palette
 	30000: Palette color 0
 	30001: Palette color 1
+	...
 
-30100: Pixel offsets
+30100: Mode Select
+	Bit 11: Color mode
+	Bits 10-9: Y cell offset (0-2)
+	Bits 8-6: Y pixel offset (0-5)
+	Bit 5: Reserved
+	Bits 4-3: X  cell offset (0-3)
+	Bits 2-0: X pixel offset (0-5)
 

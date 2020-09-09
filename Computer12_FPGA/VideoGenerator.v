@@ -80,11 +80,6 @@ module VideoGenerator(
 	reg [9:0] vga_x; // x = 0.1023
 	reg [9:0] vga_y; // y = 0..624
 	
-	wire [5:0] x_block_start = 6'o00;
-	wire [3:0] x_pixel_start = 4'o00;
-	wire [5:0] y_block_start = 6'o00;
-	wire [3:0] y_pixel_start = 4'o00;
-	
 	reg [5:0] x_block; // x_block = 0..63
 	wire [5:0] x_block_next = x_block + 6'd1;
 	reg [3:0] x_pixel; // x_pixel = 0..11
@@ -107,13 +102,19 @@ module VideoGenerator(
 	wire [11:0] scmem_data_out;	
 	reg [11:0] disp_pixels;
 	
+	reg [11:0] mode_select;
 	reg [23:0] palette_indices;
 	reg [5:0] read_pixels_a;
 	reg [5:0] read_pixels_b;
 	wire [11:0] read_pixels_dec_a;
 	wire [11:0] read_pixels_dec_b;
 	
-	wire color_mode = 1'b0;
+	wire color_mode = mode_select[11];
+	wire [5:0] x_block_start = {4'b0, mode_select[4:3]};
+	wire [3:0] x_pixel_start = {mode_select[2:0], 1'b0};
+	wire [5:0] y_block_start = {4'b0, mode_select[10:9]};
+	wire [3:0] y_pixel_start = {mode_select[8:6], 1'b0};
+	
 	
 	BlockPosAdder y_pos_adder(
 		.p1_block(y_block_base),
@@ -249,25 +250,35 @@ module VideoGenerator(
 	
 	always @(*) begin : vmem_addressing
 		vmem_addr = 14'b0;
-		if (vga_x <= 256 & ~vga_y[0]) begin
-			casez (vga_x[2:0])
-			3'b000: vmem_addr = {y_block, vga_x[7:3], 1'b0, y_pixel[3:2]};
-			3'b001: vmem_addr = {y_block, vga_x[7:3], 1'b1, y_pixel[3:2]};
-			3'b010: vmem_addr = {y_block, vga_x[7:3], 3'b011};
-			3'b011: vmem_addr = {y_block, vga_x[7:3], 3'b111};
-			3'b1zz: vmem_addr = {8'b11000000, palette_indices[6 * vga_x[1:0] +: 6]};
-			endcase
+		if (~vga_y[0]) begin
+			if (vga_x < 256) begin
+				casez (vga_x[2:0])
+				3'b000: vmem_addr = {y_block, vga_x[7:3], 1'b0, y_pixel[3:2]};
+				3'b001: vmem_addr = {y_block, vga_x[7:3], 1'b1, y_pixel[3:2]};
+				3'b010: vmem_addr = {y_block, vga_x[7:3], 3'b011};
+				3'b011: vmem_addr = {y_block, vga_x[7:3], 3'b111};
+				3'b1zz: vmem_addr = {8'b11000000, palette_indices[6 * vga_x[1:0] +: 6]};
+				endcase
+			end
+			else if (vga_x == 256) begin
+				vmem_addr = 14'o30100;
+			end
 		end
 	end
 	
 	always @(posedge clk) begin : vmem_store_results
-		if (vga_x <= 256 & ~vga_y[0]) begin
-			casez (vga_x[2:0])
-			3'b001: read_pixels_a <= vmem_data[6 * y_pixel[1] +: 6];
-			3'b010: read_pixels_b <= vmem_data[6 * y_pixel[1] +: 6];
-			3'b011: palette_indices[11:0] <= vmem_data;
-			3'b100: palette_indices[23:12] <= vmem_data;
-			endcase
+		if (~vga_y[0]) begin
+			if (vga_x <= 256) begin
+				casez (vga_x[2:0])
+				3'b001: read_pixels_a <= vmem_data[6 * y_pixel[1] +: 6];
+				3'b010: read_pixels_b <= vmem_data[6 * y_pixel[1] +: 6];
+				3'b011: palette_indices[11:0] <= vmem_data;
+				3'b100: palette_indices[23:12] <= vmem_data;
+				endcase
+			end
+			else if (vga_x == 257) begin
+				mode_select <= vmem_data;
+			end
 		end
 	end
 endmodule
