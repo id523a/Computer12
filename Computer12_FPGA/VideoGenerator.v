@@ -28,15 +28,6 @@ module VideoScanlineMemory(
 	output reg [11:0] q
 );
 	reg [11:0] mem[255:0];
-	integer i;
-	integer j;
-	initial begin
-		j = 1;
-		for (i = 0; i < 256; i = i + 1) begin
-			j = (j * 23) % 20000003;
-			mem[i] = j[13:2];
-		end
-	end
 	always @(posedge clock) begin
 		if (wren) mem[address] <= data;
 		q <= mem[address];
