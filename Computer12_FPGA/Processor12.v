@@ -12,7 +12,9 @@ module Processor12(
 	parameter [23:0] IP1_init = 24'o00000000;
 	
 	wire processor_run = 1'b1;
-	reg processor_mode;
+	wire processor_mode_ideal;
+	reg processor_mode_store;
+	wire processor_mode;
 	reg [2:0] state;
 	reg [23:0] IP0, IP1, AP, BP0, BP1, CP0, CP1;
 	wire [23:0] IP = processor_mode ? IP1 : IP0;
@@ -64,6 +66,10 @@ module Processor12(
 	wire exec_mem_write = instr_mem_write & ~flags_only;
 	wire exec_mem_modify_address = (instr_mem_post_inc | instr_mem_pre_dec) & ~flags_only;
 	
+	wire int_dismiss = 1'b0;
+	wire int_create = 1'b0;
+	wire [11:0] next_interrupt;
+	
 	InstructionDecoder instr_decoder_1(
 		.instr(instr),
 		.conditional(instr_conditional),
@@ -93,6 +99,18 @@ module Processor12(
 		.flg_out(alu_flags_out)
 	);
 	
+	InterruptController #(
+		.INTERRUPT_LINES(24)
+	) interrupt_controller_1(
+		.clk(clk),
+		.rst(rst),
+		.irq(irq),
+		.dismiss(int_dismiss),
+		.create(int_create),
+		.data_in(regfile_write_value),
+		.next_interrupt(next_interrupt)
+	);
+	
 	always @(IP, processor_mode, A, B, C, D, AP, flags_only_ctr, flags) begin : monitor_registers
 		reg [39:0] flags_display;
 		flags_display[39:32] = flags[0] ? "Z" : " ";
@@ -118,12 +136,11 @@ module Processor12(
 		end
 	end
 	
-	always @(posedge clk or negedge rst) begin : manage_processor_mode
-		if (!rst) begin
-			processor_mode <= 1'b0;
-		end
-		else if (state[2]) begin
-			processor_mode <= irq[0];
+	assign processor_mode_ideal = next_interrupt < 12'o7777;
+	assign processor_mode = state[0] ? processor_mode_ideal : processor_mode_store;
+	always @(posedge clk) begin : manage_processor_mode
+		if (state[0]) begin
+			processor_mode_store <= processor_mode_ideal;
 		end
 	end
 	
@@ -223,6 +240,8 @@ module Processor12(
 			6'b101110: regfile_read_value = IP[11:0];
 			6'bz01111: regfile_read_value = processor_mode ? IPH_temp1 : IPH_temp0;
 			
+			6'bz10000: regfile_read_value = processor_mode ? next_interrupt : 12'o7777;
+			
 			default: regfile_read_value = 12'o0000;
 		endcase
 	end
@@ -237,6 +256,9 @@ module Processor12(
 	end
 	
 	assign read_IP = (instr_dest_reg == 5'b01110 && exec_read_dest) || (instr_src_reg == 5'b01110 && exec_read_src);
+	wire interrupt_write = state[2] && exec_write_dest && instr_dest_reg == 5'b10000;
+	assign int_dismiss = interrupt_write && processor_mode;
+	assign int_create  = interrupt_write && ~processor_mode;
 	always @(posedge clk or negedge rst) begin : register_file_write
 		if (!rst) begin
 			{A0, A1, B0, B1, C, D, E, F, G} <= 0;
@@ -326,7 +348,7 @@ endmodule
 module Processor12_test();
 	reg clk;
 	reg rst;
-	reg proc_mode;
+	reg [5:0] interrupt;
 	wire [11:0] data_m2p;
 	wire [11:0] data_p2m;
 	wire mem_write;
@@ -343,15 +365,15 @@ module Processor12_test();
 	Processor12 DUT(
 		.clk(clk),
 		.rst(rst),
-		.irq({23'b0, proc_mode}),
+		.irq({18'b0, interrupt}),
 		.data_in(data_m2p),
 		.data_out(data_p2m),
 		.address(address),
 		.mem_write(mem_write)
 	);
 	
-	defparam DUT.ip0_init = 24'o00000000;
-	defparam DUT.ip1_init = 24'o00000004;
+	defparam DUT.IP0_init = 24'o00000000;
+	defparam DUT.IP1_init = 24'o00001000;
 	
 	initial begin
 		clk = 0;
@@ -364,10 +386,16 @@ module Processor12_test();
 	end
 	initial begin
 		rst = 0;
-		proc_mode = 0;
+		interrupt = 0;
 		#125
 		rst = 1;
-		#20000
-		proc_mode = 1;
+		#10000
+		interrupt = 6'b000100;
+		#2
+		interrupt = 6'b000000;
+		#10000
+		interrupt = 6'b001110;
+		#2
+		interrupt = 6'b000000;
 	end
 endmodule

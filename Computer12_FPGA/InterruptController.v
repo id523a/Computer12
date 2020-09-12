@@ -40,6 +40,7 @@ module InterruptController #(
 	parameter INTERRUPT_LINES = 24
 ) (
 	input clk,
+	input rst,
 	input [INTERRUPT_LINES-1:0] irq,
 	input dismiss,
 	input create,
@@ -72,8 +73,11 @@ module InterruptController #(
 		.out(next_interrupt)
 	);
 	
-	always @(posedge clk) begin
-		if (select_software) begin
+	always @(posedge clk or negedge rst) begin
+		if (!rst) begin
+			software_interrupt <= 12'o7777;
+		end
+		else if (select_software) begin
 			if (dismiss) software_interrupt <= 12'o7777;
 			if (create) software_interrupt <= data_in;
 		end
