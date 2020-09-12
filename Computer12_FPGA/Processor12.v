@@ -8,11 +8,21 @@ module Processor12(
 	output reg mem_read,
 	output reg mem_write
 );
+	parameter [23:0] IP0_init = 24'o00000000;
+	parameter [23:0] IP1_init = 24'o00000000;
+	
 	wire processor_run = 1'b1;
+	reg processor_mode;
 	reg [2:0] state;
-	reg [23:0] IP, AP, BP, CP;
+	reg [23:0] IP0, IP1, AP, BP0, BP1, CP0, CP1;
+	wire [23:0] IP = processor_mode ? IP1 : IP0;
+	wire [23:0] BP = processor_mode ? BP1 : BP0;
+	wire [23:0] CP = processor_mode ? CP1 : CP0;
 	wire [23:0] IP_next;
-	reg [11:0] A, B, C, D, E, F, G, IPH_temp, IPL_temp;
+	reg [11:0] A0, A1, B0, B1, C, D, E, F, G;
+	wire [11:0] A = processor_mode ? A1 : A0;
+	wire [11:0] B = processor_mode ? B1 : B0;
+	reg [11:0] IPH_temp0, IPH_temp1, IPL_temp0, IPL_temp1;
 	
 	// bit 5 of regfile_addr_read indicates whether the register is a destination (0) or a source (1)
 	wire [5:0] regfile_addr_read;
@@ -35,8 +45,10 @@ module Processor12(
 	wire [4:0] instr_alu_op;
 	wire [3:0] instr_alu_cond;
 
-	reg [2:0] flags_only_ctr;
-	reg [4:0] flags;
+	reg [2:0] flags_only_ctr0, flags_only_ctr1;
+	wire [2:0] flags_only_ctr = processor_mode ? flags_only_ctr1 : flags_only_ctr0;
+	reg [4:0] flags0, flags1;
+	wire [4:0] flags = processor_mode ? flags1 : flags0;
 	wire [4:0] alu_flags_out;
 	reg [11:0] alu_temp;
 
@@ -81,14 +93,15 @@ module Processor12(
 		.flg_out(alu_flags_out)
 	);
 	
-	always @(IP, A, B, C, D, AP, flags_only_ctr, flags) begin : monitor_registers
+	always @(IP, processor_mode, A, B, C, D, AP, flags_only_ctr, flags) begin : monitor_registers
 		reg [39:0] flags_display;
 		flags_display[39:32] = flags[0] ? "Z" : " ";
 		flags_display[31:24] = flags[1] ? "S" : " ";
 		flags_display[23:16] = flags[2] ? "K" : " ";
 		flags_display[15:8]  = flags[3] ? "V" : " ";
 		flags_display[7:0]   = flags[4] ? "P" : " ";
-		$strobe("%dps: IP=%o A=%o B=%o C=%o D=%o AP=%o FO=%o %s", $time, IP, A, B, C, D, AP, flags_only_ctr, flags_display);
+		$strobe("%dps: M%b IP=%o A=%o B=%o C=%o D=%o AP=%o FO=%o %s", $time,
+			processor_mode, IP, A, B, C, D, AP, flags_only_ctr, flags_display);
 	end
 	
 	always @(posedge clk or negedge rst) begin : state_counter
@@ -102,6 +115,15 @@ module Processor12(
 				state <= 3'b100;
 			else
 				state <= 3'b001;
+		end
+	end
+	
+	always @(posedge clk or negedge rst) begin : manage_processor_mode
+		if (!rst) begin
+			processor_mode <= 1'b0;
+		end
+		else if (state[2]) begin
+			processor_mode <= irq[0];
 		end
 	end
 	
@@ -144,21 +166,31 @@ module Processor12(
 	assign IP_next = IP + 24'b1;
 	always @(posedge clk or negedge rst) begin : instruction_fetch
 		if (!rst) begin
-			IP <= 0;
+			IP0 <= IP0_init;
+			IP1 <= IP1_init;
 			instr_store <= 0;
 		end
 		else begin
 			if (state[0] & processor_run) begin
-				IP <= IP_next;
+				if (processor_mode)
+					IP1 <= IP_next;
+				else
+					IP0 <= IP_next;
 			end
 			else if (state[1]) begin
 				if (instr_has_immediate) begin
-					IP <= IP_next;
+					if (processor_mode)
+						IP1 <= IP_next;
+					else
+						IP0 <= IP_next;
 				end
 				instr_store <= data_in;
 			end
 			else if (state[2] & (instr_dest_reg == 5'b01111) & exec_write_dest) begin
-				IP <= {regfile_write_value, IPL_temp};
+				if (processor_mode)
+					IP1 <= {regfile_write_value, IPL_temp1};
+				else
+					IP0 <= {regfile_write_value, IPL_temp0};
 			end
 		end
 	end
@@ -189,7 +221,7 @@ module Processor12(
 			6'bz01101: regfile_read_value = CP[23:12];
 			6'b001110: regfile_read_value = IP_next[11:0];
 			6'b101110: regfile_read_value = IP[11:0];
-			6'bz01111: regfile_read_value = IPH_temp;
+			6'bz01111: regfile_read_value = processor_mode ? IPH_temp1 : IPH_temp0;
 			
 			default: regfile_read_value = 12'o0000;
 		endcase
@@ -207,43 +239,61 @@ module Processor12(
 	assign read_IP = (instr_dest_reg == 5'b01110 && exec_read_dest) || (instr_src_reg == 5'b01110 && exec_read_src);
 	always @(posedge clk or negedge rst) begin : register_file_write
 		if (!rst) begin
-			{A, B, C, D, E, F, G} <= 0;
-			{IPH_temp, IPL_temp} <= 0;
-			{AP, BP, CP} <= 0;
-			flags <= 5'b0;
+			{A0, A1, B0, B1, C, D, E, F, G} <= 0;
+			{IPH_temp0, IPL_temp0} <= 0;
+			{IPH_temp1, IPL_temp1} <= 0;
+			{AP, BP0, BP1, CP0, CP1} <= 0;
+			flags0 <= 5'b0;
+			flags1 <= 5'b0;
 		end
 		else if (state[2]) begin
 			if (read_IP) begin
-				IPH_temp <= IP[23:12];
+				if (processor_mode)
+					IPH_temp1 <= IP1[23:12];
+				else
+					IPH_temp0 <= IP0[23:12];
 			end
 			if (instr_execute) begin
-				flags <= alu_flags_out;
+				if (processor_mode)
+					flags1 <= alu_flags_out;
+				else
+					flags0 <= alu_flags_out;
 			end
 			if (exec_write_dest) begin
-				casez (instr_dest_reg)
-					5'b00000: A <= regfile_write_value;
-					5'b00001: B <= regfile_write_value;
-					5'b00010: C <= regfile_write_value;
-					5'b00011: D <= regfile_write_value;
-					5'b00100: E <= regfile_write_value;
-					5'b00101: F <= regfile_write_value;
-					5'b00110: G <= regfile_write_value;
-					/* 5'b00111: do nothing */
-					5'b01000: AP[11:0] <= regfile_write_value;
-					5'b01001: AP[23:12] <= regfile_write_value;
-					5'b01010: BP[11:0] <= regfile_write_value;
-					5'b01011: BP[23:12] <= regfile_write_value;
-					5'b01100: CP[11:0] <= regfile_write_value;
-					5'b01101: CP[23:12] <= regfile_write_value;
-					5'b01110: IPL_temp <= regfile_write_value;
-					/* 5'b01111: Write to instruction pointer */
+				casez ({processor_mode, instr_dest_reg})
+					6'b000000: A0 <= regfile_write_value;
+					6'b100000: A1 <= regfile_write_value;
+					6'b000001: B0 <= regfile_write_value;
+					6'b100001: B1 <= regfile_write_value;
+					6'bz00010: C <= regfile_write_value;
+					6'bz00011: D <= regfile_write_value;
+					6'bz00100: E <= regfile_write_value;
+					6'bz00101: F <= regfile_write_value;
+					6'bz00110: G <= regfile_write_value;
+					/* 6'bz00111: do nothing */
+					6'bz01000: AP[11:0] <= regfile_write_value;
+					6'bz01001: AP[23:12] <= regfile_write_value;
+					6'b001010: BP0[11:0] <= regfile_write_value;
+					6'b101010: BP1[11:0] <= regfile_write_value;
+					6'b001011: BP0[23:12] <= regfile_write_value;
+					6'b101011: BP1[23:12] <= regfile_write_value;
+					6'b001100: CP0[11:0] <= regfile_write_value;
+					6'b101100: CP1[11:0] <= regfile_write_value;
+					6'b001101: CP0[23:12] <= regfile_write_value;
+					6'b101101: CP1[23:12] <= regfile_write_value;
+					6'b001110: IPL_temp0 <= regfile_write_value;
+					6'b101110: IPL_temp1 <= regfile_write_value;
+					/* 6'bz01111: Write to instruction pointer */
 				endcase
 			end
 			if (exec_mem_modify_address) begin
-				case (instr_mem_base)
-					2'b01: AP <= data_address_next;
-					2'b10: BP <= data_address_next;
-					2'b11: CP <= data_address_next;
+				$display("modify address");
+				casez ({processor_mode, instr_mem_base})
+					3'bz01: AP <= data_address_next;
+					3'b010: BP0 <= data_address_next;
+					3'b110: BP1 <= data_address_next;
+					3'b011: CP0 <= data_address_next;
+					3'b111: CP1 <= data_address_next;
 				endcase
 			end
 		end
@@ -251,18 +301,24 @@ module Processor12(
 	
 	always @(posedge clk or negedge rst) begin : handle_flags_only_count
 		if (!rst) begin
-			flags_only_ctr <= 3'o0;
+			flags_only_ctr0 <= 3'o0;
+			flags_only_ctr1 <= 3'o0;
 		end
 		else if (state[2]) begin
 			if (instr_execute & instr_write_dest & instr_dest_reg == 5'b11111) begin
-				flags_only_ctr <= instr[2:0];
+				if (processor_mode)
+					flags_only_ctr1 <= instr[2:0];
+				else
+					flags_only_ctr0 <= instr[2:0];
 			end
 			else begin
-				flags_only_ctr <= flags_only ? (flags_only_ctr - 3'o1) : 3'o0;
+				if (processor_mode)
+					flags_only_ctr1 <= flags_only ? (flags_only_ctr1 - 3'o1) : 3'o0;
+				else
+					flags_only_ctr0 <= flags_only ? (flags_only_ctr0 - 3'o1) : 3'o0;
 			end
 		end
 	end
-	
 	assign data_out = (state[2] & exec_mem_write) ? regfile_write_value : 12'b0;
 endmodule
 
@@ -270,6 +326,7 @@ endmodule
 module Processor12_test();
 	reg clk;
 	reg rst;
+	reg proc_mode;
 	wire [11:0] data_m2p;
 	wire [11:0] data_p2m;
 	wire mem_write;
@@ -286,12 +343,16 @@ module Processor12_test();
 	Processor12 DUT(
 		.clk(clk),
 		.rst(rst),
-		.irq(24'b0),
+		.irq({23'b0, proc_mode}),
 		.data_in(data_m2p),
 		.data_out(data_p2m),
 		.address(address),
 		.mem_write(mem_write)
 	);
+	
+	defparam DUT.ip0_init = 24'o00000000;
+	defparam DUT.ip1_init = 24'o00000004;
+	
 	initial begin
 		clk = 0;
 		repeat (1000) begin
@@ -303,7 +364,10 @@ module Processor12_test();
 	end
 	initial begin
 		rst = 0;
+		proc_mode = 0;
 		#125
 		rst = 1;
+		#20000
+		proc_mode = 1;
 	end
 endmodule

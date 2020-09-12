@@ -182,8 +182,9 @@ Load/store locations:
 
 00: [INT]
 	Read, inside interrupt handler: Lowest interrupt number
-	Read, inside user code: 0xFFF
+	Read, inside user code: 0o7777
 	Write, inside interrupt handler: Dismiss interrupt number, possibly switch to user code
+		Write 0o7777: dismiss all interrupt numbers
 	Write, inside user code: Trigger software interrupt
 01: Reserved
 02: Reserved
