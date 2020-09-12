@@ -347,6 +347,6 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL MainPLL.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL MainPLL.bsf FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL MainPLL_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL MainPLL_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL MainPLL_bb.v FALSE
 // Retrieval info: LIB_FILE: altera_mf
 // Retrieval info: CBX_MODULE_PREFIX: ON
