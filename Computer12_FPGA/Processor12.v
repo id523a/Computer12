@@ -1,7 +1,23 @@
+module SyncLatch #(
+	parameter WIDTH = 1
+) (
+	input clk,
+	input [WIDTH-1:0] d,
+	input enable,
+	output [WIDTH-1:0] q
+);
+	reg [WIDTH-1:0] data_store;
+	assign q = enable ? d : data_store;
+	always @(posedge clk) begin
+		if (enable) data_store <= d;
+	end
+endmodule
+
 module Processor12(
 	input clk,
 	input rst,
-	input [23:0] irq,
+	input tri0 [23:0] irq,
+	input tri1 mem_ready,
 	input [11:0] data_in,
 	output [11:0] data_out,
 	output reg [23:0] address,
@@ -11,9 +27,6 @@ module Processor12(
 	parameter [23:0] IP0_init = 24'o00000000;
 	parameter [23:0] IP1_init = 24'o00000000;
 	
-	wire processor_run = 1'b1;
-	wire processor_mode_ideal;
-	reg processor_mode_store;
 	wire processor_mode;
 	reg [2:0] state;
 	reg [23:0] IP0, IP1, AP, BP0, BP1, CP0, CP1;
@@ -32,7 +45,6 @@ module Processor12(
 	wire [11:0] regfile_write_value;
 	wire read_IP;
 	
-	reg [11:0] instr_store;
 	wire [11:0] instr;
 	wire instr_conditional;
 	wire instr_has_immediate;
@@ -126,8 +138,8 @@ module Processor12(
 		if (!rst) begin
 			state <= 3'b000;
 		end
-		else begin
-			if (state[0] & processor_run)
+		else if (mem_ready) begin
+			if (state[0])
 				state <= 3'b010;
 			else if (state[1])
 				state <= 3'b100;
@@ -136,13 +148,12 @@ module Processor12(
 		end
 	end
 	
-	assign processor_mode_ideal = next_interrupt < 12'o7777;
-	assign processor_mode = state[0] ? processor_mode_ideal : processor_mode_store;
-	always @(posedge clk) begin : manage_processor_mode
-		if (state[0]) begin
-			processor_mode_store <= processor_mode_ideal;
-		end
-	end
+	SyncLatch #(1) processor_mode_latch(
+		.clk(clk),
+		.d(next_interrupt < 12'o7777),
+		.enable(mem_ready && state[0]),
+		.q(processor_mode)
+	);
 	
 	always @(*) begin : compute_data_address
 		case (instr_mem_base)
@@ -160,35 +171,41 @@ module Processor12(
 			data_address_next = data_address + 24'b1;
 		end
 	end
-
+	
 	always @(*) begin : memory_addressing
 		address = 24'oxxxxxxxx;
-		mem_read = 1;
+		mem_read = 0;
 		mem_write = 0;
-		if (state[0]) begin
-			address = IP;
-		end
-		if (state[1]) begin
-			address = instr_has_immediate ? IP : data_address;
-			mem_read = instr_has_immediate | exec_mem_read;
-		end
-		if (state[2]) begin
-			address = data_address;
-			mem_read = 0;
-			mem_write = exec_mem_write;
+		if (mem_ready) begin
+			if (state[0]) begin
+				address = IP;
+				mem_read = 1;
+			end
+			if (state[1]) begin
+				address = instr_has_immediate ? IP : data_address;
+				mem_read = instr_has_immediate | exec_mem_read;
+			end
+			if (state[2]) begin
+				address = data_address;
+				mem_write = exec_mem_write;
+			end
 		end
 	end
-	
-	assign instr = state[1] ? data_in : instr_store;
+
+	SyncLatch #(12) instr_latch(
+		.clk(clk),
+		.d(data_in),
+		.enable(mem_ready && state[1]),
+		.q(instr)
+	);
 	assign IP_next = IP + 24'b1;
 	always @(posedge clk or negedge rst) begin : instruction_fetch
 		if (!rst) begin
 			IP0 <= IP0_init;
 			IP1 <= IP1_init;
-			instr_store <= 0;
 		end
-		else begin
-			if (state[0] & processor_run) begin
+		else if (mem_ready) begin
+			if (state[0]) begin
 				if (processor_mode)
 					IP1 <= IP_next;
 				else
@@ -201,7 +218,6 @@ module Processor12(
 					else
 						IP0 <= IP_next;
 				end
-				instr_store <= data_in;
 			end
 			else if (state[2] & (instr_dest_reg == 5'b01111) & exec_write_dest) begin
 				if (processor_mode)
@@ -250,13 +266,13 @@ module Processor12(
 		if (!rst) begin
 			alu_temp <= 12'b0;
 		end
-		else if (state[1]) begin
+		else if (mem_ready && state[1]) begin
 			alu_temp <= regfile_read_value;
 		end
 	end
 	
 	assign read_IP = (instr_dest_reg == 5'b01110 && exec_read_dest) || (instr_src_reg == 5'b01110 && exec_read_src);
-	wire interrupt_write = state[2] && exec_write_dest && instr_dest_reg == 5'b10000;
+	wire interrupt_write = mem_ready && state[2] && exec_write_dest && instr_dest_reg == 5'b10000;
 	assign int_dismiss = interrupt_write && processor_mode;
 	assign int_create  = interrupt_write && ~processor_mode;
 	always @(posedge clk or negedge rst) begin : register_file_write
@@ -268,7 +284,7 @@ module Processor12(
 			flags0 <= 5'b0;
 			flags1 <= 5'b0;
 		end
-		else if (state[2]) begin
+		else if (mem_ready && state[2]) begin
 			if (read_IP) begin
 				if (processor_mode)
 					IPH_temp1 <= IP1[23:12];
@@ -309,7 +325,6 @@ module Processor12(
 				endcase
 			end
 			if (exec_mem_modify_address) begin
-				$display("modify address");
 				casez ({processor_mode, instr_mem_base})
 					3'bz01: AP <= data_address_next;
 					3'b010: BP0 <= data_address_next;
@@ -326,7 +341,7 @@ module Processor12(
 			flags_only_ctr0 <= 3'o0;
 			flags_only_ctr1 <= 3'o0;
 		end
-		else if (state[2]) begin
+		else if (mem_ready & state[2]) begin
 			if (instr_execute & instr_write_dest & instr_dest_reg == 5'b11111) begin
 				if (processor_mode)
 					flags_only_ctr1 <= instr[2:0];
@@ -351,14 +366,18 @@ module Processor12_test();
 	reg [5:0] interrupt;
 	wire [11:0] data_m2p;
 	wire [11:0] data_p2m;
+	wire mem_read;
 	wire mem_write;
 	wire [23:0] address;
+	wire mem_valid;
 	
-	TestMemory testMem(
+	TestMemorySlow testMem(
 		.clock(clk),
 		.address(address[11:0]),
 		.data(data_p2m),
 		.wren(mem_write),
+		.rden(mem_read),
+		.ready(mem_valid),
 		.q(data_m2p)
 	);
 
@@ -366,9 +385,11 @@ module Processor12_test();
 		.clk(clk),
 		.rst(rst),
 		.irq({18'b0, interrupt}),
+		.mem_ready(mem_valid),
 		.data_in(data_m2p),
 		.data_out(data_p2m),
 		.address(address),
+		.mem_read(mem_read),
 		.mem_write(mem_write)
 	);
 	
@@ -377,7 +398,7 @@ module Processor12_test();
 	
 	initial begin
 		clk = 0;
-		repeat (1000) begin
+		repeat (3000) begin
 			#25
 			clk = 1;
 			#25
@@ -389,11 +410,11 @@ module Processor12_test();
 		interrupt = 0;
 		#125
 		rst = 1;
-		#10000
+		#15000
 		interrupt = 6'b000100;
 		#2
 		interrupt = 6'b000000;
-		#10000
+		#15000
 		interrupt = 6'b001110;
 		#2
 		interrupt = 6'b000000;
