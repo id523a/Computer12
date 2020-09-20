@@ -111,6 +111,16 @@ set_location_assignment PIN_B8 -to rst_in
 set_global_assignment -name EDA_TEST_BENCH_NAME InterruptController_test -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id InterruptController_test
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME InterruptController_test -section_id InterruptController_test
+set_global_assignment -name EDA_TEST_BENCH_FILE Processor12.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE TestMemory.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE TestMemorySlow.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id InstructionDecoder_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id InterruptController_test
+set_global_assignment -name VHDL_FILE ps2/ps2_keyboard.vhd
+set_global_assignment -name VHDL_FILE ps2/debounce.vhd
 set_global_assignment -name VERILOG_FILE Computer12.v
 set_global_assignment -name SDC_FILE Computer12.sdc
 set_global_assignment -name VERILOG_FILE Processor12.v
@@ -125,12 +135,24 @@ set_global_assignment -name MIF_FILE VideoTestMemory.mif
 set_global_assignment -name QIP_FILE VideoTestMemory.qip
 set_global_assignment -name VERILOG_FILE InterruptController.v
 set_global_assignment -name VERILOG_FILE TestMemorySlow.v
-set_global_assignment -name EDA_TEST_BENCH_FILE Processor12.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE TestMemory.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE TestMemorySlow.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id InstructionDecoder_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id InterruptController_test
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[0]
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to ps2_key_clk
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to ps2_key_data
+set_location_assignment PIN_A8 -to blinkenlights[0]
+set_location_assignment PIN_A9 -to blinkenlights[1]
+set_location_assignment PIN_A10 -to blinkenlights[2]
+set_location_assignment PIN_B10 -to blinkenlights[3]
+set_location_assignment PIN_D13 -to blinkenlights[4]
+set_location_assignment PIN_C13 -to blinkenlights[5]
+set_location_assignment PIN_E14 -to blinkenlights[6]
+set_location_assignment PIN_D14 -to blinkenlights[7]
+set_location_assignment PIN_V10 -to ps2_key_data
+set_location_assignment PIN_V9 -to ps2_key_clk
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
