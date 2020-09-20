@@ -20,9 +20,9 @@ module Processor12(
 	input tri1 mem_ready,
 	input [11:0] data_in,
 	output [11:0] data_out,
-	output reg [23:0] address,
-	output reg mem_read,
-	output reg mem_write
+	output [23:0] address,
+	output mem_read,
+	output mem_write
 );
 	parameter [23:0] IP0_init = 24'o00000000;
 	parameter [23:0] IP1_init = 24'o00000000;
@@ -39,12 +39,15 @@ module Processor12(
 	wire [11:0] B = processor_mode ? B1 : B0;
 	reg [11:0] IPH_temp0, IPH_temp1, IPL_temp0, IPL_temp1;
 	
+	reg [23:0] address_ideal;
+	reg mem_read_ideal, mem_write_ideal;
+	
 	// bit 5 of regfile_addr_read indicates whether the register is a destination (0) or a source (1)
 	wire [5:0] regfile_addr_read;
 	reg [11:0] regfile_read_value;
 	wire [11:0] regfile_write_value;
 	wire read_IP;
-	
+
 	wire [11:0] instr;
 	wire instr_conditional;
 	wire instr_has_immediate;
@@ -172,22 +175,41 @@ module Processor12(
 		end
 	end
 	
+	SyncLatch #(24) address_latch(
+		.clk(clk),
+		.d(address_ideal),
+		.enable(mem_ready),
+		.q(address)
+	);
+	SyncLatch #(1) mem_read_latch(
+		.clk(clk),
+		.d(mem_read_ideal),
+		.enable(mem_ready),
+		.q(mem_read)
+	);
+	SyncLatch #(1) mem_write_latch(
+		.clk(clk),
+		.d(mem_write_ideal),
+		.enable(mem_ready),
+		.q(mem_write)
+	);
+	
 	always @(*) begin : memory_addressing
-		address = 24'oxxxxxxxx;
-		mem_read = 0;
-		mem_write = 0;
+		address_ideal = 24'oxxxxxxxx;
+		mem_read_ideal = 0;
+		mem_write_ideal = 0;
 		if (mem_ready) begin
 			if (state[0]) begin
-				address = IP;
-				mem_read = 1;
+				address_ideal = IP;
+				mem_read_ideal = 1;
 			end
 			if (state[1]) begin
-				address = instr_has_immediate ? IP : data_address;
-				mem_read = instr_has_immediate | exec_mem_read;
+				address_ideal = instr_has_immediate ? IP : data_address;
+				mem_read_ideal = instr_has_immediate | exec_mem_read;
 			end
 			if (state[2]) begin
-				address = data_address;
-				mem_write = exec_mem_write;
+				address_ideal = data_address;
+				mem_write_ideal = exec_mem_write;
 			end
 		end
 	end
