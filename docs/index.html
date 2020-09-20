@@ -204,6 +204,13 @@
 				<td>(K:Rd) := Rd - Rs</td>
 				<td class="code">ZSKV</td>
 			</tr>
+			<tr id="summary-swp">
+				<td class="code"><a href="instr/swp.html">swp</a> Rd</td>
+				<td class="code">cswp</td>
+				<td>Byte swap</td>
+				<td>Rd := Rd &lt;&lt;&lt; 6</td>
+				<td class="code">ZS V</td>
+			</tr>
 			<tr id="summary-xor">
 				<td class="code"><a href="instr/bit_op.html#summary-xor">xor</a> Rd, Rs</td>
 				<td class="code">cxor</td>
@@ -215,51 +222,51 @@
 		<p><b>* Flags:</b> Indicates which flags are altered by the instruction, if any.<br>
 		<code>Z</code>: zero, <code>S</code>: sign, <code>K</code>: carry, <code>V</code>: signed overflow, <code>P</code>: predicate for conditional instructions</p>
 		<h1 id="registers">Registers</h1>
-		<p>Instructions which have one register operand (except loads and stores) can use any of the sixteen registers for that operand. Instructions which have two register operands must use two 'near' registers, or one 'near' and one 'far' register.</p>
+		<p>The majority of instructions which have one register operand can use any of the sixteen registers for that operand. Instructions which have two register operands must use two 'near' registers, or one 'near' and one 'far' register.</p>
 		<h2 id="registers-near">'Near' set</h2>
 		<table style="width: 100%; min-width:30em;"><tbody>
 			<tr>
-				<th style="width:3em;">#</th>
-				<th style="width:7em;">Assembly</th>
+				<th style="width:3.5em;">Octal</th>
+				<th style="width:6.5em;">Assembly</th>
 				<th>Description</th>
 			</tr>
 			<tr>
-				<td class="code">0x0</td>
+				<td class="code">00</td>
 				<td class="code">A</td>
 				<td>General-purpose register A</td>
 			</tr>
 			<tr>
-				<td class="code">0x1</td>
+				<td class="code">01</td>
 				<td class="code">B</td>
 				<td>General-purpose register B</td>
 			</tr>
 			<tr>
-				<td class="code">0x2</td>
+				<td class="code">02</td>
 				<td class="code">C</td>
 				<td>General-purpose register C</td>
 			</tr>
 			<tr>
-				<td class="code">0x3</td>
+				<td class="code">03</td>
 				<td class="code">D</td>
 				<td>General-purpose register D</td>
 			</tr>
 			<tr>
-				<td class="code">0x4</td>
+				<td class="code">04</td>
 				<td class="code">E</td>
 				<td>General-purpose register E</td>
 			</tr>
 			<tr>
-				<td class="code">0x5</td>
+				<td class="code">05</td>
 				<td class="code">F</td>
 				<td>General-purpose register F</td>
 			</tr>
 			<tr>
-				<td class="code">0x6</td>
+				<td class="code">06</td>
 				<td class="code">G</td>
 				<td>General-purpose register G</td>
 			</tr>
 			<tr>
-				<td class="code">0x7</td>
+				<td class="code">07</td>
 				<td class="code">#</td>
 				<td>Immediate value (as <code>Rs</code>), Zero/Discard (as <code>Rd</code>)</td>
 			</tr>
@@ -267,47 +274,47 @@
 		<h2 id="registers-far">'Far' set</h2>
 		<table style="width: 100%; min-width:30em;"><tbody>
 			<tr>
-				<th style="width:3em;">#</th>
-				<th style="width:7em;">Assembly</th>
+				<th style="width:3.5em;">Octal</th>
+				<th style="width:6.5em;">Assembly</th>
 				<th>Description</th>
 			</tr>
 			<tr>
-				<td class="code">0x8</td>
+				<td class="code">10</td>
 				<td class="code">APL</td>
 				<td colspan="2">Memory pointer A, low half</td>
 			</tr>
 			<tr>
-				<td class="code">0x9</td>
+				<td class="code">11</td>
 				<td class="code">APH</td>
 				<td colspan="2">Memory pointer A, high half</td>
 			</tr>
 			<tr>
-				<td class="code">0xA</td>
+				<td class="code">12</td>
 				<td class="code">BPL</td>
 				<td colspan="2">Memory pointer B, low half</td>
 			</tr>
 			<tr>
-				<td class="code">0xB</td>
+				<td class="code">13</td>
 				<td class="code">BPH</td>
 				<td colspan="2">Memory pointer B, high half</td>
 			</tr>
 			<tr>
-				<td class="code">0xC</td>
+				<td class="code">14</td>
 				<td class="code">CPL</td>
 				<td colspan="2">Memory pointer C, low half</td>
 			</tr>
 			<tr>
-				<td class="code">0xD</td>
+				<td class="code">15</td>
 				<td class="code">CPH</td>
 				<td colspan="2">Memory pointer C, high half</td>
 			</tr>
 			<tr>
-				<td class="code">0xE</td>
+				<td class="code">16</td>
 				<td class="code">IPL</td>
 				<td colspan="2">Instruction pointer, low half</td>
 			</tr>
 			<tr>
-				<td class="code">0xF</td>
+				<td class="code">17</td>
 				<td class="code">IPH</td>
 				<td colspan="2">Instruction pointer, high half</td>
 			</tr>
