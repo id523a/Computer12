@@ -60,7 +60,7 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
-set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH Processor12_test -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH Computer12_test -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_NAME Processor12_test -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id Processor12_test
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME Processor12_test -section_id Processor12_test
@@ -111,14 +111,6 @@ set_location_assignment PIN_B8 -to rst_in
 set_global_assignment -name EDA_TEST_BENCH_NAME InterruptController_test -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id InterruptController_test
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME InterruptController_test -section_id InterruptController_test
-set_global_assignment -name EDA_TEST_BENCH_FILE Processor12.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE TestMemory.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE TestMemorySlow.v -section_id Processor12_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id InstructionDecoder_test
-set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id InterruptController_test
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[7]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[6]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to blinkenlights[5]
@@ -139,7 +131,8 @@ set_location_assignment PIN_E14 -to blinkenlights[6]
 set_location_assignment PIN_D14 -to blinkenlights[7]
 set_location_assignment PIN_V10 -to ps2_key_data
 set_location_assignment PIN_V9 -to ps2_key_clk
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name SYNCHRONIZATION_REGISTER_CHAIN_LENGTH 4
 set_global_assignment -name VHDL_FILE ps2/ps2_keyboard.vhd
 set_global_assignment -name VHDL_FILE ps2/debounce.vhd
 set_global_assignment -name VERILOG_FILE Computer12.v
@@ -152,6 +145,28 @@ set_global_assignment -name MIF_FILE TestMemory.mif
 set_global_assignment -name QIP_FILE TestMemory.qip
 set_global_assignment -name VERILOG_FILE VideoGenerator.v
 set_global_assignment -name QIP_FILE VideoRAM.qip
-set_global_assignment -name MIF_FILE VideoTestMemory.mif
 set_global_assignment -name VERILOG_FILE InterruptController.v
 set_global_assignment -name VERILOG_FILE TestMemorySlow.v
+set_global_assignment -name MIF_FILE RAM32k.mif
+set_global_assignment -name QIP_FILE RAM32k.qip
+set_global_assignment -name EDA_TEST_BENCH_NAME Computer12_test -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME Computer12_test -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE Processor12.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE TestMemory.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE TestMemorySlow.v -section_id Processor12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id InstructionDecoder_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id InterruptController_test
+set_global_assignment -name EDA_TEST_BENCH_FILE ALU.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE Computer12.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InstructionDecoder.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE InterruptController.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE MainPLL.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE Processor12.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE RAM32k.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE VideoGenerator.v -section_id Computer12_test
+set_global_assignment -name EDA_TEST_BENCH_FILE VideoRAM.v -section_id Computer12_test
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

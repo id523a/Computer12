@@ -1,20 +1,14 @@
 module InterruptInput(
 	input clk,
-	input irq, // irq: positive edge triggered
+	input irq, // irq: positive edge triggered, not synchronized, must be 1 for at least 1 clock cycle
 	input dismiss,
 	output reg out
 );
-	reg irq_toggler = 1'b0;
-	reg irq_sync = 1'b0;
-	reg irq_sync2 = 1'b0;
 	reg irq_prev = 1'b0;
-	always @(posedge irq) begin
-		irq_toggler <= ~irq_toggler;
-	end
 	
 	always @(posedge clk) begin
-		{irq_sync2, irq_sync, irq_prev} <= {irq_toggler, irq_sync2, irq_sync};
-		out <= (out | (irq_prev ^ irq_sync)) & ~dismiss;
+		irq_prev <= irq;
+		out <= (out | (irq & ~irq_prev)) & ~dismiss;
 	end
 endmodule
 

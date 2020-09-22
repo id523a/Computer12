@@ -1,4 +1,4 @@
-module SyncLatch #(
+module Processor12_Latch #(
 	parameter WIDTH = 1
 ) (
 	input clk,
@@ -7,8 +7,8 @@ module SyncLatch #(
 	output [WIDTH-1:0] q
 );
 	reg [WIDTH-1:0] data_store;
-	assign q = enable ? d : data_store;
-	always @(posedge clk) begin
+	assign q = data_store;
+	always @(*) begin
 		if (enable) data_store <= d;
 	end
 endmodule
@@ -20,9 +20,9 @@ module Processor12(
 	input tri1 mem_ready,
 	input [11:0] data_in,
 	output [11:0] data_out,
-	output [23:0] address,
-	output mem_read,
-	output mem_write
+	output reg [23:0] address,
+	output reg mem_read,
+	output reg mem_write
 );
 	parameter [23:0] IP0_init = 24'o00000000;
 	parameter [23:0] IP1_init = 24'o00000000;
@@ -38,9 +38,6 @@ module Processor12(
 	wire [11:0] A = processor_mode ? A1 : A0;
 	wire [11:0] B = processor_mode ? B1 : B0;
 	reg [11:0] IPH_temp0, IPH_temp1, IPL_temp0, IPL_temp1;
-	
-	reg [23:0] address_ideal;
-	reg mem_read_ideal, mem_write_ideal;
 	
 	// bit 5 of regfile_addr_read indicates whether the register is a destination (0) or a source (1)
 	wire [5:0] regfile_addr_read;
@@ -81,8 +78,8 @@ module Processor12(
 	wire exec_mem_write = instr_mem_write & ~flags_only;
 	wire exec_mem_modify_address = (instr_mem_post_inc | instr_mem_pre_dec) & ~flags_only;
 	
-	wire int_dismiss = 1'b0;
-	wire int_create = 1'b0;
+	wire int_dismiss;
+	wire int_create;
 	wire [11:0] next_interrupt;
 	
 	InstructionDecoder instr_decoder_1(
@@ -113,7 +110,6 @@ module Processor12(
 		.Q(regfile_write_value),
 		.flg_out(alu_flags_out)
 	);
-	
 	InterruptController #(
 		.INTERRUPT_LINES(24)
 	) interrupt_controller_1(
@@ -122,10 +118,9 @@ module Processor12(
 		.irq(irq),
 		.dismiss(int_dismiss),
 		.create(int_create),
-		.data_in(regfile_write_value),
+		.data_in(regfile_read_value),
 		.next_interrupt(next_interrupt)
 	);
-	
 	always @(IP, processor_mode, A, B, C, D, AP, flags_only_ctr, flags) begin : monitor_registers
 		reg [39:0] flags_display;
 		flags_display[39:32] = flags[0] ? "Z" : " ";
@@ -151,7 +146,7 @@ module Processor12(
 		end
 	end
 	
-	SyncLatch #(1) processor_mode_latch(
+	Processor12_Latch #(1) processor_mode_latch(
 		.clk(clk),
 		.d(next_interrupt < 12'o7777),
 		.enable(mem_ready && state[0]),
@@ -175,46 +170,27 @@ module Processor12(
 		end
 	end
 	
-	SyncLatch #(24) address_latch(
-		.clk(clk),
-		.d(address_ideal),
-		.enable(mem_ready),
-		.q(address)
-	);
-	SyncLatch #(1) mem_read_latch(
-		.clk(clk),
-		.d(mem_read_ideal),
-		.enable(mem_ready),
-		.q(mem_read)
-	);
-	SyncLatch #(1) mem_write_latch(
-		.clk(clk),
-		.d(mem_write_ideal),
-		.enable(mem_ready),
-		.q(mem_write)
-	);
-	
 	always @(*) begin : memory_addressing
-		address_ideal = 24'oxxxxxxxx;
-		mem_read_ideal = 0;
-		mem_write_ideal = 0;
+		address = 24'oxxxxxxxx;
+		mem_read = 0;
+		mem_write = 0;
 		if (mem_ready) begin
 			if (state[0]) begin
-				address_ideal = IP;
-				mem_read_ideal = 1;
+				address = IP;
+				mem_read = 1;
 			end
 			if (state[1]) begin
-				address_ideal = instr_has_immediate ? IP : data_address;
-				mem_read_ideal = instr_has_immediate | exec_mem_read;
+				address = instr_has_immediate ? IP : data_address;
+				mem_read = instr_has_immediate | exec_mem_read;
 			end
 			if (state[2]) begin
-				address_ideal = data_address;
-				mem_write_ideal = exec_mem_write;
+				address = data_address;
+				mem_write = exec_mem_write;
 			end
 		end
 	end
 
-	SyncLatch #(12) instr_latch(
+	Processor12_Latch #(12) instr_latch(
 		.clk(clk),
 		.d(data_in),
 		.enable(mem_ready && state[1]),
@@ -378,7 +354,7 @@ module Processor12(
 			end
 		end
 	end
-	assign data_out = (state[2] & exec_mem_write) ? regfile_write_value : 12'b0;
+	assign data_out = (state[2] & exec_mem_write) ? regfile_read_value : 12'b0;
 endmodule
 
 `timescale 1ns/1ps
