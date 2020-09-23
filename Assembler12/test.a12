@@ -1,0 +1,21 @@
+#o0000_4000:
+	mov BP, #o0010_0000
+	mov CP, #o0000_3000
+int_loop:
+	lda [INT]
+	ldb [CP]; stb [BP]
+	sta [INT]
+	jmp_mov int_loop
+
+#o0001_0000:
+	mov BP, #o0013_0000
+	mov A, #o0000
+	sta [BP++]
+	mov A, #o7777
+	sta [BP++]
+	mov BP, #o0010_0003
+	mov A, #o0101
+	sta [BP]
+halt_loop:
+	jmp_sub halt_loop
+
