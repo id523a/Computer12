@@ -56,6 +56,15 @@ def parse_number_literal(num_str):
     except StopIteration:
         return sign * result if result_valid else None
 
+class AssemblerError(Exception):
+    def __init__(self, file_name, line_num, message):
+        self.file_name = file_name
+        self.line_num = line_num
+        self.message = message
+
+    def __str__(self):
+        return f'in {self.file_name}, line {self.line_num}: {self.message}'
+
 class Assembler:
     def __init__(self, mem):
         self.mem = mem
@@ -64,13 +73,20 @@ class Assembler:
         self.file_name = '<unknown>'
         self.line_number = 0
 
+    def error(self, message):
+        raise AssemblerError(self.file_name, self.line_number, message)
+
     def asm_statement(self, statement):
         print(f"{self.file_name}:{self.line_number} [ASM] {statement}")
 
     def asm_label(self, label):
         parse_addr = parse_number_literal(label)
         if parse_addr is not None:
-            print(f"{self.file_name}:{self.line_number} [ORIG] {parse_addr:08o}")
+            if parse_addr >= 0 and parse_addr < len(mem):
+                print(f"{self.file_name}:{self.line_number} [ORIG] {parse_addr:08o}")
+                self.address = parse_addr
+            else:
+                self.error(f"Address {label} is out of range.")
         else:
             print(f"{self.file_name}:{self.line_number} [LABEL] {label}")
 
