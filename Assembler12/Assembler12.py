@@ -8,13 +8,13 @@ number_base_table = {
     'H': 16, 'h': 16
 }
 
-digit_value = {
+digit_value_table = {
     '0': 0, '1': 1, '2': 2, '3': 3, '4': 4,
     '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
     'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15,
     'a': 10, 'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15
 }
-def asm_parse_literal(num_str):
+def parse_number_literal(num_str):
     # Number format : # <base> <sign> <digits>
     # Base is optional, defaults to decimal
     # Sign is optional, defaults to positive
@@ -46,11 +46,11 @@ def asm_parse_literal(num_str):
         # Read digits
         while True:
             if ch != '_': # Ignore underscores in digit string
-                dval = digit_value.get(ch, -1)
-                if (dval < 0 or dval >= base):
+                digit_value = digit_value_table.get(ch, -1)
+                if (digit_value < 0 or digit_value >= base):
                     return None
                 result *= base
-                result += dval
+                result += digit_value
                 result_valid = True
             ch = next(iter_str)
     except StopIteration:
@@ -68,7 +68,11 @@ class Assembler:
         print(f"{self.file_name}:{self.line_number} [ASM] {statement}")
 
     def asm_label(self, label):
-        print(f"{self.file_name}:{self.line_number} [LABEL] {label}")
+        parse_addr = parse_number_literal(label)
+        if parse_addr is not None:
+            print(f"{self.file_name}:{self.line_number} [ORIG] {parse_addr:08o}")
+        else:
+            print(f"{self.file_name}:{self.line_number} [LABEL] {label}")
 
     def asm_line(self, line):
         # Remove line comment if present
