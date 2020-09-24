@@ -77,18 +77,21 @@ class Assembler:
         raise AssemblerError(self.file_name, self.line_number, message)
 
     def asm_statement(self, statement):
-        print(f"{self.file_name}:{self.line_number} [ASM] {statement}")
+        print(f"{self.address:08o} {statement}")
+        self.address += 1
 
     def asm_label(self, label):
         parse_addr = parse_number_literal(label)
         if parse_addr is not None:
             if parse_addr >= 0 and parse_addr < len(mem):
-                print(f"{self.file_name}:{self.line_number} [ORIG] {parse_addr:08o}")
                 self.address = parse_addr
             else:
                 self.error(f"Address {label} is out of range.")
+        elif label not in self.labels:
+            print(f"{label} = {self.address:08o}")
+            self.labels[label] = self.address
         else:
-            print(f"{self.file_name}:{self.line_number} [LABEL] {label}")
+            self.error(f"Label {label} is already defined.")
 
     def asm_line(self, line):
         # Remove line comment if present
