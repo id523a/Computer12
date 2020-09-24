@@ -63,14 +63,14 @@ class AssemblerError(Exception):
         self.message = message
 
     def __str__(self):
-        return f'in {self.file_name}, line {self.line_num}: {self.message}'
+        return f"in {self.file_name}, line {self.line_num}: {self.message}"
 
 class Assembler:
     def __init__(self, mem):
         self.mem = mem
         self.address = 0
         self.labels = {}
-        self.file_name = '<unknown>'
+        self.file_name = "<unknown>"
         self.line_number = 0
 
     def error(self, message):
@@ -117,7 +117,7 @@ class Assembler:
             # Remember previous values for file name and line number
             old_file = self.file_name
             old_line = self.line_number
-            f = open(file_name, 'r')
+            f = open(file_name, "r")
             # Record file name for debugging
             self.file_name = file_name
             for line_num_z, line in enumerate(f):
@@ -140,10 +140,10 @@ def mif_lines(mem):
     yield ''
     yield 'CONTENT BEGIN'
     # Run-length encode file contents
-    prev_word = -1;
-    run_start = 0;
-    address = 0;
-    addr_width = (len(mem).bit_length() + 3) // 4;
+    prev_word = -1
+    run_start = 0
+    address = 0
+    addr_width = (len(mem).bit_length() + 3) // 4
     # The 'mem' array is extended with a value that cannot be in the input,
     # so that the last run is finished properly
     for word in chain(mem, (None,)):
