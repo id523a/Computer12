@@ -56,18 +56,28 @@ def asm_parse_literal(num_str):
     except StopIteration:
         return sign * result if result_valid else None
 
-def assemble(asm_lines, mem):
-    labels = {}
-    for line_number_z, asm_line in enumerate(asm_lines):
-        line_number = line_number_z + 1
+class Assembler:
+    def __init__(self, mem):
+        self.mem = mem
+        self.address = 0
+        self.labels = {}
+        self.file_name = '<unknown>'
+        self.line_number = 0
+
+    def asm_statement(self, statement):
+        print(f"{self.file_name}:{self.line_number} [ASM] {statement}")
+
+    def asm_label(self, label):
+        print(f"{self.file_name}:{self.line_number} [LABEL] {label}")
+
+    def asm_line(self, line):
         # Remove line comment if present
-        comment_pos = asm_line.find('//')
+        comment_pos = line.find('//')
         if comment_pos != -1:
-            asm_line = asm_line[0:comment_pos]
-        # A line may contain multiple statements
-        # separated by semicolons
-        for statement in asm_line.split(';'):
-            # Anything before a colon is a label name
+            line = line[0:comment_pos]
+        # A line may contain multiple statements separated by ';'
+        for statement in line.split(';'):
+            # Anything before a colon is a label name on the statement
             colon_labels = statement.split(':')
             statement = colon_labels[-1].strip()
             colon_labels.pop()
@@ -76,10 +86,29 @@ def assemble(asm_lines, mem):
                 label = label.strip()
                 if label == "":
                     continue
-                print(f"{line_number:3d} [LABEL] {label}")
+                self.asm_label(label)
+            # Process statement
             if statement == "":
                 continue
-            print(f"{line_number:3d} [ASM] {statement}")
+            self.asm_statement(statement)
+
+    def asm_file(self, file_name):
+        try:
+            # Remember previous values for file name and line number
+            old_file = self.file_name
+            old_line = self.line_number
+            f = open(file_name, 'r')
+            # Record file name for debugging
+            self.file_name = file_name
+            for line_num_z, line in enumerate(f):
+                # Record line number for debugging
+                self.line_number = line_num_z + 1
+                self.asm_line(line)
+        finally:
+            # Restore file name and line number
+            self.file_name = old_file
+            self.line_number = old_line
+            f.close()
 
 def mif_lines(mem):
     # Write file header
@@ -119,7 +148,7 @@ def mif_lines(mem):
     yield 'END;'
 
 if __name__ == "__main__":
-   mem = array('h', (-1 for i in range(32768)))
-   with open('test.a12', 'r') as f:
-       assemble(f, mem)
+    mem = array('h', (-1 for i in range(32768)))
+    assembler = Assembler(mem)
+    assembler.asm_file('test.a12')
 
