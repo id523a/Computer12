@@ -56,42 +56,71 @@ def parse_number_literal(num_str):
     except StopIteration:
         return sign * result if result_valid else None
 
-class AssemblerError(Exception):
+class AssemblerError:
     def __init__(self, file_name, line_num, message):
-        self.file_name = file_name
-        self.line_num = line_num
+        self.file = file_name
+        self.line = line_num
         self.message = message
 
+    def __repr__(self):
+        return f"AssemblerError({self.file!r}, {self.line!r}, {self.message!r})"
+    
     def __str__(self):
-        return f"in {self.file_name}, line {self.line_num}: {self.message}"
+        return f"Error in {self.file}, line {self.line}: {self.message}"
+
+class AssemblerStop(Exception):
+    pass
 
 class Assembler:
     def __init__(self, mem):
         self.mem = mem
         self.address = 0
+        self.address_overrun = False
         self.labels = {}
+        self.errors = []
+        self.max_errors = 10
         self.file_name = "<unknown>"
         self.line_number = 0
 
     def error(self, message):
-        raise AssemblerError(self.file_name, self.line_number, message)
+        if len(self.errors) < self.max_errors:
+            self.errors.append(AssemblerError(self.file_name, self.line_number, message))
+        else:
+            raise AssemblerStop()
 
+    def asm_set_address(self, addr):
+        self.address = addr
+        self.address_overrun = False
+        
+    def asm_write_word(self, word):
+        if self.address_overrun:
+            return
+        if self.address >= 0 and self.address < len(mem):
+            if self.mem[self.address] >= 0:
+                self.error(f"Location #o{self.address:08o} cannot be rewritten.")
+            self.mem[self.address] = word
+            self.address += 1
+        else:
+            self.address_overrun = True
+            self.error(f"Cannot write data past the end of the memory.")
+                
+        
     def asm_statement(self, statement):
         print(f"{self.address:08o} {statement}")
-        self.address += 1
+        self.asm_write_word(0x123)
 
     def asm_label(self, label):
         parse_addr = parse_number_literal(label)
         if parse_addr is not None:
             if parse_addr >= 0 and parse_addr < len(mem):
-                self.address = parse_addr
+                self.asm_set_address(parse_addr)
             else:
                 self.error(f"Address {label} is out of range.")
-        elif label not in self.labels:
-            print(f"{label} = {self.address:08o}")
-            self.labels[label] = self.address
         else:
-            self.error(f"Label {label} is already defined.")
+            print(f"{label} = {self.address:08o}")
+            if label in self.labels:
+                self.error(f"Label {label} is already defined.")
+            self.labels[label] = self.address
 
     def asm_line(self, line):
         # Remove line comment if present
