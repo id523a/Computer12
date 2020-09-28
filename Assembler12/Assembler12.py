@@ -75,7 +75,8 @@ class Assembler:
     def __init__(self, mem):
         self.mem = mem
         self.address = 0
-        self.address_overrun = False
+        self.error_past_end = False
+        self.error_overwrite = False
         self.labels = {}
         self.errors = []
         self.max_errors = 10
@@ -90,19 +91,21 @@ class Assembler:
 
     def asm_set_address(self, addr):
         self.address = addr
-        self.address_overrun = False
+        self.error_past_end = False
+        self.error_overwrite = False
         
     def asm_write_word(self, word):
-        if self.address_overrun:
+        if self.error_past_end:
             return
         if self.address >= 0 and self.address < len(mem):
-            if self.mem[self.address] >= 0:
-                self.error(f"Location #o{self.address:08o} cannot be rewritten.")
+            if (not self.error_overwrite) and self.mem[self.address] >= 0:
+                self.error_overwrite = True
+                self.error(f"Location #o{self.address:08o} already contains data.")
             self.mem[self.address] = word
             self.address += 1
         else:
-            self.address_overrun = True
-            self.error(f"Cannot write data past the end of the memory.")
+            self.error_past_end = True
+            self.error(f"Cannot write data at or beyond address #o{len(mem):08o}.")
                 
         
     def asm_statement(self, statement):
@@ -145,6 +148,7 @@ class Assembler:
             self.asm_statement(statement)
 
     def asm_file(self, file_name):
+        success = True
         try:
             # Remember previous values for file name and line number
             old_file = self.file_name
@@ -156,11 +160,16 @@ class Assembler:
                 # Record line number for debugging
                 self.line_number = line_num_z + 1
                 self.asm_line(line)
+            if len(self.errors) > 0:
+                success = False
+        except AssemblerStop:
+            success = False
         finally:
             # Restore file name and line number
             self.file_name = old_file
             self.line_number = old_line
             f.close()
+        return success
 
 def mif_lines(mem):
     # Write file header
@@ -202,5 +211,9 @@ def mif_lines(mem):
 if __name__ == "__main__":
     mem = array('h', (-1 for i in range(32768)))
     assembler = Assembler(mem)
-    assembler.asm_file('test.a12')
+    if assembler.asm_file('test.a12'):
+        print("Success")
+    else:
+        for err in assembler.errors:
+            print(err)
 
