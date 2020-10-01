@@ -5,7 +5,7 @@ from asm_state import *
 
 class TokenType(Enum):
     NEWLINE = 0
-    END_STATEMENT = 1
+    SEMICOLON = 1
     NUMBER = 2
     REG = 3
     DOUBLE_REG = 4
@@ -55,7 +55,7 @@ def extract_name(match):
 
 assembly_lexer = Lexer([
     (r"\n", TokenType.NEWLINE),
-    (r";", TokenType.END_STATEMENT),
+    (r";", TokenType.SEMICOLON),
     (r"#(?P<number_base>[bodh]?)(?P<number_sign>[+-]?)(?P<number_digits>[0-9a-z_]+)", TokenType.NUMBER, parse_number),
     (r"\b(?:[ABCI]P[LH]|[ABCDEFGZ])\b", TokenType.REG, extract_name),
     (r"\b[ABCI]P\b", TokenType.DOUBLE_REG, extract_name),
@@ -71,5 +71,6 @@ assembly_lexer = Lexer([
 ], re.IGNORECASE)
 
 with open('../test.a12', 'r') as f:
-    for token_type, value in assembly_lexer.tokenize(f):
+    tokens = assembly_lexer.tokenize(f)
+    for token_type, value in tokens:
         print(token_type.name.rjust(15), "" if value is None else str(value))
