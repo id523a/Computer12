@@ -3,7 +3,7 @@ import re
 from collections import namedtuple
 
 def default_lexer_action(match):
-    return match.group()
+    return None
 
 LexerRule = namedtuple("LexerRule", "pattern token_type action", defaults=(default_lexer_action,))
 LexerToken = namedtuple("LexerToken", "token_type value")
