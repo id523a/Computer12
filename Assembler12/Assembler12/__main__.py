@@ -62,7 +62,7 @@ assembly_lexer = Lexer([
     (r"#(?P<number_base>[bodh]?)(?P<number_sign>[+-]?)(?P<number_digits>[0-9a-z_]+)", TokenType.NUMBER, parse_number),
     (r"\b(?:[ABCI]P[LH]|[ABCDEFGZ])\b", TokenType.REG, extract_name),
     (r"\b[ABCI]P\b", TokenType.DOUBLE_REG, extract_name),
-    (r"\w+", TokenType.IDENTIFIER, extract_name),
+    (r"[\w!@$?.]+", TokenType.IDENTIFIER, extract_name),
     (r":", TokenType.COLON),
     (r",", TokenType.COMMA),
     (r"\[", TokenType.LEFT_BRACKET),
