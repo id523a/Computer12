@@ -15,7 +15,7 @@ class LexError(Exception):
     pass
 
 class Lexer:
-    def __init__(self, lexer_rules):
+    def __init__(self, lexer_rules, re_flags=0):
         self.rule_lookup = {}
         regex_build = []
         for idx, lex_def in enumerate(lexer_rules):
@@ -24,7 +24,7 @@ class Lexer:
             rule_name = f"LEX_R{idx}"
             regex_build.append(f"(?P<{rule_name}>{lex_def.pattern})")
             self.rule_lookup[rule_name] = lex_def 
-        self.lexer_regex = re.compile("|".join(regex_build))
+        self.lexer_regex = re.compile("|".join(regex_build), re_flags)
 
     def tokenize(self, seq, *args, **kwargs):
         if isinstance(seq, str):
