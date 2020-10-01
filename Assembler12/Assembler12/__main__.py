@@ -3,6 +3,7 @@ import re
 from re_lexer import Lexer, LexError, LexerToken
 from asm_state import *
 from itertools import chain as iter_chain
+from array import array
 
 class TokenType(Enum):
     END = 1
@@ -72,8 +73,42 @@ assembly_lexer = Lexer([
     (r"\s+", None) # Ignore whitespace by default
 ], re.IGNORECASE)
 
-with open('../test.a12', 'r') as f:
+def assemble_statement(assembler_state, opcode, args):
+    print(f"{assembler_state.line_number}: Statement: {opcode} ({len(args)})")
+
+def assemble_label(assembler_state, token):
+    print(f"{assembler_state.line_number}: Label: {token.value}")
+
+mem = array('h', (-1 for i in range(32768)))
+assembler_state = Assembler(mem)
+with open("../test.a12", 'r') as f:
     tokens = assembly_lexer.tokenize(f)
     tokens = iter_chain(tokens, (LexerToken(TokenType.END, False),))
-    for token_type, value in tokens:
-        print(token_type.name.rjust(15), "" if value is None else str(value))
+    assembler_state.file_name = "test.a12"
+    assembler_state.line_number = 1
+    op_token = None
+    args = []
+    for tok in tokens:
+        if tok.token_type is TokenType.END:
+            if op_token is not None:
+                if op_token.token_type is TokenType.IDENTIFIER:
+                    assemble_statement(assembler_state, op_token.value, args)
+                else:
+                    assembler_state.error(AssemblerError(assembler_state, f'Unexpected {op_token.token_type.name}. A statement must begin with an opcode.'))
+            op_token = None
+            args.clear()
+            if tok.value is True:
+                assembler_state.line_number += 1
+        elif tok.token_type is TokenType.COLON:
+            if op_token is not None and len(args) == 0 and op_token.token_type in (TokenType.IDENTIFIER, TokenType.NUMBER):
+                assemble_label(assembler_state, op_token)
+            else:
+                assembler_state.error(AssemblerError(assembler_state, 'A label must consist of exactly one identifier or number.'))
+            op_token = None
+            args.clear()
+        elif op_token is None:
+            op_token = tok
+        else:
+            args.append(tok)
+    for err in assembler_state.errors:
+        print(err)

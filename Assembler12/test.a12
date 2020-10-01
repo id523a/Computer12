@@ -6,6 +6,7 @@ int_loop:
 	ldb [CP]; stb [BP]
 	sta [INT]
 	jmp_mov int_loop
+	[] syntax error!
 
 #o0001_0000:
 	mov BP, #o0013_0000
