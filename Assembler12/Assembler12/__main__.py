@@ -1,7 +1,8 @@
 from enum import Enum
 import re
-from re_lexer import Lexer, LexError
+from re_lexer import Lexer, LexError, LexerToken
 from asm_state import *
+from itertools import chain as iter_chain
 
 class TokenType(Enum):
     END = 1
@@ -73,5 +74,6 @@ assembly_lexer = Lexer([
 
 with open('../test.a12', 'r') as f:
     tokens = assembly_lexer.tokenize(f)
+    tokens = iter_chain(tokens, (LexerToken(TokenType.END, False),))
     for token_type, value in tokens:
         print(token_type.name.rjust(15), "" if value is None else str(value))
