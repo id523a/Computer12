@@ -12,7 +12,7 @@ del default_lexer_action
 del namedtuple
 
 class LexError(Exception):
-    pass
+    preview_chars = 20
 
 class Lexer:
     def __init__(self, lexer_rules, re_flags=0):
@@ -32,13 +32,22 @@ class Lexer:
         else:
             return self.tokenize_file(seq, *args, **kwargs)
 
+    def raise_lex_error(self, seq, start_point):
+        error_end = start_point + LexError.preview_chars
+        ellipsis = ""
+        if error_end >= len(seq):
+            error_end = len(seq)
+        else:
+            error_end = error_end - 3
+            ellipsis = "..."
+        raise LexError("Unrecognized token at: " + repr(seq[start_point:error_end])[1:-1] + ellipsis)
+    
     def tokenize_str(self, seq):
         start_point = 0
-        end_point = len(seq)
-        while start_point < end_point:
+        while start_point < len(seq):
             match_obj = self.lexer_regex.match(seq, start_point)
             if match_obj is None:
-                raise LexError(buffer[start_point:])
+                self.raise_lex_error(seq, start_point)
             rule = self.rule_lookup[match_obj.lastgroup]
             if rule.token_type is not None:
                 yield LexerToken(rule.token_type, rule.action(match_obj))
@@ -63,7 +72,7 @@ class Lexer:
             # Match the next token
             match_obj = self.lexer_regex.match(buffer, start_point)
             if match_obj is None:
-                raise LexError(buffer[start_point:])
+                self.raise_lex_error(buffer, start_point)
             rule = self.rule_lookup[match_obj.lastgroup]
             if rule.token_type is not None:
                 yield LexerToken(rule.token_type, rule.action(match_obj))

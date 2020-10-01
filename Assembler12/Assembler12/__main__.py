@@ -47,7 +47,7 @@ def parse_number(match):
             result *= base
             result += digit
         else:
-            raise ValueError(f'Invalid digit in base {base}: {digit_char!r}')
+            raise LexError(f'Invalid digit in base {base}: {digit_char!r}')
     return sign * result
 
 def extract_name(match):
