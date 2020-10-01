@@ -4,8 +4,7 @@ from re_lexer import Lexer, LexError
 from asm_state import *
 
 class TokenType(Enum):
-    NEWLINE = 0
-    SEMICOLON = 1
+    END = 1
     NUMBER = 2
     REG = 3
     DOUBLE_REG = 4
@@ -53,9 +52,11 @@ def parse_number(match):
 def extract_name(match):
     return match.group()
 
+def is_newline(match):
+    return match.group() == '\n'
+
 assembly_lexer = Lexer([
-    (r"\n", TokenType.NEWLINE),
-    (r";", TokenType.SEMICOLON),
+    (r"\n|;", TokenType.END, is_newline),
     (r"#(?P<number_base>[bodh]?)(?P<number_sign>[+-]?)(?P<number_digits>[0-9a-z_]+)", TokenType.NUMBER, parse_number),
     (r"\b(?:[ABCI]P[LH]|[ABCDEFGZ])\b", TokenType.REG, extract_name),
     (r"\b[ABCI]P\b", TokenType.DOUBLE_REG, extract_name),
