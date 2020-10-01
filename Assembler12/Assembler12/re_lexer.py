@@ -40,7 +40,12 @@ class Lexer:
         else:
             error_end = error_end - 3
             ellipsis = "..."
-        raise LexError("Unrecognized token at: " + repr(seq[start_point:error_end])[1:-1] + ellipsis)
+        find_newline = seq.find('\n',start_point,error_end)
+        if find_newline >= 0:
+            error_end = find_newline
+            ellipsis = ""
+        seq = seq[start_point:error_end]
+        raise LexError("Unrecognized token at: " + repr(seq)[1:-1] + ellipsis)
     
     def tokenize_str(self, seq):
         start_point = 0
