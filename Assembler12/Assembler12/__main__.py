@@ -94,7 +94,7 @@ with open("../test.a12", 'r') as f:
                 if op_token.token_type is TokenType.IDENTIFIER:
                     assemble_statement(assembler_state, op_token.value, args)
                 else:
-                    assembler_state.error(AssemblerError(assembler_state, f'Unexpected {op_token.token_type.name}. A statement must begin with an opcode.'))
+                    assembler_state.error(AssemblerError(f'Unexpected {op_token.token_type.name}. A statement must begin with an identifier (the opcode).'))
             op_token = None
             args.clear()
             if tok.value is True:
@@ -103,7 +103,7 @@ with open("../test.a12", 'r') as f:
             if op_token is not None and len(args) == 0 and op_token.token_type in (TokenType.IDENTIFIER, TokenType.NUMBER):
                 assemble_label(assembler_state, op_token)
             else:
-                assembler_state.error(AssemblerError(assembler_state, 'A label must consist of exactly one identifier or number.'))
+                assembler_state.error(AssemblerError('A label must consist of exactly one identifier or number.'))
             op_token = None
             args.clear()
         elif op_token is None:

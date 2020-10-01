@@ -2,9 +2,9 @@ class AssemblerAbort(Exception):
     pass
 
 class AssemblerError:
-    def __init__(self, assembler, message=None):
-        self.file = assembler.file_name
-        self.line = assembler.line_number
+    def __init__(self, message=None):
+        self.file = "<unknown>"
+        self.line = 0
         self._message_str = message
 
     def get_message(self):
@@ -21,9 +21,9 @@ class AssemblerError:
         return build_str
 
 class AssemblerOverflow(AssemblerError):
-    def __init__(self, assembler, mem_len):
+    def __init__(self, mem_len):
         self.mem_len = mem_len
-        super().__init__(assembler)
+        super().__init__()
 
     def get_message(self):
         return f"Cannot write data at or beyond address #o{self.mem_len:08o}."
@@ -32,12 +32,12 @@ class AssemblerOverflow(AssemblerError):
         return isinstance(other, AssemblerOverflow)
 
 class AssemblerOverwrite(AssemblerError):
-    def __init__(self, assembler, start_addr, end_addr=None):
+    def __init__(self, start_addr, end_addr=None):
         if end_addr is None:
             end_addr = start_addr
         self.start_addr = start_addr
         self.end_addr = end_addr
-        super().__init__(assembler)
+        super().__init__()
 
     def get_message(self):
         if self.end_addr == self.start_addr:
@@ -65,6 +65,8 @@ class Assembler:
         self.line_number = 0
 
     def error(self, e):
+        e.file = self.file_name
+        e.line = self.line_number
         if len(self.errors) > 0 and self.errors[-1].merge(e):
             pass
         elif len(self.errors) < self.max_errors:
@@ -74,17 +76,17 @@ class Assembler:
 
     def set_address(self, a):
         if a < 0:
-            self.error(AssemblerError(self, "Address must not be negative."))
+            self.error(AssemblerError("Address must not be negative."))
         elif a >= len(self.mem):
-            self.error(AssemblerOverflow(self, len(self.mem)))
+            self.error(AssemblerOverflow(len(self.mem)))
         else:
             self.address = a
 
     def write_word(self, w):
         if self.address >= len(self.mem):
-            self.error(AssemblerOverflow(self, len(self.mem)))
+            self.error(AssemblerOverflow(len(self.mem)))
         elif self.mem[self.address] >= 0:
-            self.error(AssemblerOverwrite(self, self.address))
+            self.error(AssemblerOverwrite(self.address))
         else:
             self.mem[self.address] = w
             self.address += 1
