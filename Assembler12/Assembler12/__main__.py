@@ -52,7 +52,7 @@ def parse_number(match):
     return sign * result
 
 def extract_name(match):
-    return match.group()
+    return match.group().upper()
 
 def is_newline(match):
     return match.group() == '\n'
@@ -77,7 +77,18 @@ def assemble_statement(assembler_state, opcode, args):
     print(f"{assembler_state.line_number}: Statement: {opcode} ({len(args)})")
 
 def assemble_label(assembler_state, token):
-    print(f"{assembler_state.line_number}: Label: {token.value}")
+    if token.token_type is TokenType.IDENTIFIER:
+        if token.value not in assembler_state.labels:
+            print(f"Label: {token.value} = {assembler_state.address:08o}")
+            assembler_state.labels[token.value] = assembler_state.address
+        else:
+            assembler_state.error(AssemblerError(f"Label {token.value} is already defined."))
+    elif token.token_type is TokenType.NUMBER:
+        if token.value >= 0 and token.value < len(assembler_state.mem):
+            print(f"Label: {token.value:08o}")
+            assembler_state.address = token.value
+        else:
+            assembler_state.error(AssemblerError(f"Label address is out of range."))
 
 mem = array('h', (-1 for i in range(32768)))
 assembler_state = Assembler(mem)
