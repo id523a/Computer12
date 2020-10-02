@@ -94,20 +94,23 @@ with open("../test.a12", 'r') as f:
                 if op_token.token_type is TokenType.IDENTIFIER:
                     assemble_statement(assembler_state, op_token.value, args)
                 else:
-                    assembler_state.error(AssemblerError(f'Unexpected {op_token.token_type.name}. A statement must begin with an identifier (the opcode).'))
+                    assembler_state.error(AssemblerError('A statement must begin with an identifier (the opcode).'))
             op_token = None
             args.clear()
             if tok.value is True:
                 assembler_state.line_number += 1
         elif tok.token_type is TokenType.COLON:
-            if op_token is not None and len(args) == 0 and op_token.token_type in (TokenType.IDENTIFIER, TokenType.NUMBER):
+            if op_token is not None and len(args) == 0:
                 assemble_label(assembler_state, op_token)
             else:
                 assembler_state.error(AssemblerError('A label must consist of exactly one identifier or number.'))
             op_token = None
             args.clear()
         elif op_token is None:
-            op_token = tok
+            if tok.token_type in (TokenType.IDENTIFIER, TokenType.NUMBER):
+                op_token = tok
+            else:
+                assembler_state.error(AssemblerError(f'Unexpected {tok.token_type.name} at beginning of statement/label.'))
         else:
             args.append(tok)
     for err in assembler_state.errors:
