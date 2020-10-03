@@ -63,7 +63,7 @@ class Assembler:
         self.labels = {}
         self.defer_list = []
         self.errors = []
-        self.max_errors = 10
+        self.max_errors = 20
         self.file_name = "<unknown>"
         self.line_number = 0
 

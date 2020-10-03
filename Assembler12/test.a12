@@ -5,8 +5,7 @@ int_loop:
 	lda [INT]
 	ldb [CP]; stb [BP]
 	sta [INT]
-	jmp_mov int_loop
-	[] syntax error!
+	mov IP, int_loop
 
 #o0001_0000:
 	mov BP, #o0013_0000
@@ -18,5 +17,5 @@ int_loop:
 	mov A, #o0101
 	sta [BP]
 halt_loop:
-	jmp_sub halt_loop
+	mov IP, halt_loop
 

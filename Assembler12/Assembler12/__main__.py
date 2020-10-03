@@ -106,34 +106,39 @@ assembler_state = Assembler(mem)
 with open("../test2.a12", 'r') as f:
     tokens = assembly_lexer.tokenize(f)
     tokens = iter_chain(tokens, (LexerToken(TokenType.END, False),))
-    assembler_state.file_name = "test.a12"
+    assembler_state.file_name = "test2.a12"
     assembler_state.line_number = 1
     op_token = None
     args = []
-    for tok in tokens:
-        if tok.token_type is TokenType.END:
-            if op_token is not None:
-                if op_token.token_type is TokenType.IDENTIFIER:
-                    assemble_statement(assembler_state, op_token.value, args)
+    try:
+        for tok in tokens:
+            if tok.token_type is TokenType.END:
+                if op_token is not None:
+                    if op_token.token_type is TokenType.IDENTIFIER:
+                        assemble_statement(assembler_state, op_token.value, args)
+                    else:
+                        assembler_state.error(AssemblerError('A statement must begin with an identifier (the opcode).'))
+                op_token = None
+                args.clear()
+                if tok.value is True:
+                    assembler_state.line_number += 1
+            elif tok.token_type is TokenType.COLON:
+                if op_token is not None and len(args) == 0:
+                    assemble_label(assembler_state, op_token)
                 else:
-                    assembler_state.error(AssemblerError('A statement must begin with an identifier (the opcode).'))
-            op_token = None
-            args.clear()
-            if tok.value is True:
-                assembler_state.line_number += 1
-        elif tok.token_type is TokenType.COLON:
-            if op_token is not None and len(args) == 0:
-                assemble_label(assembler_state, op_token)
+                    assembler_state.error(AssemblerError('A label must consist of exactly one identifier or number.'))
+                op_token = None
+                args.clear()
+            elif op_token is None:
+                if tok.token_type in (TokenType.IDENTIFIER, TokenType.NUMBER):
+                    op_token = tok
+                else:
+                    assembler_state.error(AssemblerError(f'Unexpected {tok.token_type.name} at beginning of statement/label.'))
             else:
-                assembler_state.error(AssemblerError('A label must consist of exactly one identifier or number.'))
-            op_token = None
-            args.clear()
-        elif op_token is None:
-            if tok.token_type in (TokenType.IDENTIFIER, TokenType.NUMBER):
-                op_token = tok
-            else:
-                assembler_state.error(AssemblerError(f'Unexpected {tok.token_type.name} at beginning of statement/label.'))
-        else:
-            args.append(tok)
+                args.append(tok)
+        if len(assembler_state.errors) == 0:
+            assembler_state.resolve_deferred()
+    except AssemblerAbort:
+        pass
     for err in assembler_state.errors:
         print(err)

@@ -2,8 +2,8 @@
 test_label:
 	mov A, B
 	mov A, #0
-	mov C B A, AP
+	mov C B, AP
 	sbk A B, C D
 	mov IP, #o4000
 	mov IP, test_label
-	add AP, #-5
+	add AP, undefined_label
