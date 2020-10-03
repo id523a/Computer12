@@ -61,6 +61,7 @@ class Assembler:
         self.mem = mem
         self.address = 0
         self.labels = {}
+        self.defer_list = []
         self.errors = []
         self.max_errors = 10
         self.file_name = "<unknown>"
@@ -90,8 +91,25 @@ class Assembler:
         elif self.mem[self.address] >= 0:
             self.error(AssemblerOverwrite(self.address))
         else:
+            print(f"{self.address:08o} = {w:04o}")
             self.mem[self.address] = w
             self.address += 1
+
+    def write_deferred(self, w_func):
+        if self.address >= len(self.mem):
+            self.error(AssemblerOverflow(len(self.mem)))
+        elif self.mem[self.address] >= 0:
+            self.error(AssemblerOverwrite(self.address))
+        else:
+            print(f"{self.address:08o} = <defer>")
+            self.mem[self.address] = 0
+            self.defer_list.append((self.address, w_func))
+            self.address += 1
+
+    def resolve_deferred(self):
+        for addr, w_func in self.defer_list:
+            self.mem[addr] = w_func(self)
+        self.defer_list.clear()
 
 class TokenType(Enum):
     END = 1

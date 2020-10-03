@@ -2,7 +2,7 @@
 test_label:
 	mov A, B
 	mov A, #0
-	mov B A, AP
+	mov C B A, AP
 	mov AP, BP
 	mov IP, #o4000
 	mov IP, test_label

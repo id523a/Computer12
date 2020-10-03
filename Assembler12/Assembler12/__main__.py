@@ -78,7 +78,7 @@ class UnknownOpcode(AssemblerError):
         super().__init__()
 
     def get_message(self):
-        return f"Unknown opcode {self.opcode}"
+        return f"Unknown opcode {self.opcode}."
 
 def assemble_statement(assembler_state, opcode, args):
     assembler_func = asm_opcode_lookup.get(opcode)
