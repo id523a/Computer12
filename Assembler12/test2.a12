@@ -3,7 +3,7 @@ test_label:
 	mov A, B
 	mov A, #0
 	mov C B A, AP
-	mov AP, BP
+	sbk A B, C D
 	mov IP, #o4000
 	mov IP, test_label
-	add A, #5
+	add AP, #-5
