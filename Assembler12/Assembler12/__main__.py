@@ -1,23 +1,9 @@
-from enum import Enum
 import re
 from re_lexer import Lexer, LexError, LexerToken
 from asm_state import *
+from asm_opcodes import asm_opcode_lookup
 from itertools import chain as iter_chain
 from array import array
-
-class TokenType(Enum):
-    END = 1
-    NUMBER = 2
-    REG = 3
-    DOUBLE_REG = 4
-    IDENTIFIER = 5
-    COLON = 6
-    COMMA = 7
-    LEFT_BRACKET = 8
-    RIGHT_BRACKET = 9
-    AUTO_INCREMENT = 10
-    AUTO_DECREMENT = 11
-    PLUS = 12
 
 number_bases = {
     '': 10,
@@ -32,6 +18,15 @@ digit_values = {
     '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
     'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15,
     'a': 10, 'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15
+}
+
+register_indices = {
+    'A': 0, 'B': 1, 'C': 2, 'D': 3,
+    'E': 4, 'F': 5, 'G': 6, 'Z': 7,
+    'APL': 8,  'APH': 9,  'AP': (9, 8),
+    'BPL': 10, 'BPH': 11, 'BP': (11,10),
+    'CPL': 12, 'CPH': 13, 'CP': (13,12),
+    'IPL': 14, 'IPH': 15, 'IP': (15,14)
 }
 
 def parse_number(match):
@@ -54,14 +49,17 @@ def parse_number(match):
 def extract_name(match):
     return match.group().upper()
 
+def extract_reg(match):
+    return register_indices[match.group().upper()]
+
 def is_newline(match):
     return match.group() == '\n'
 
 assembly_lexer = Lexer([
     (r"\n|;", TokenType.END, is_newline),
     (r"#(?P<number_base>[bodh]?)(?P<number_sign>[+-]?)(?P<number_digits>[0-9a-z_]+)", TokenType.NUMBER, parse_number),
-    (r"\b(?:[ABCI]P[LH]|[ABCDEFGZ])\b", TokenType.REG, extract_name),
-    (r"\b[ABCI]P\b", TokenType.DOUBLE_REG, extract_name),
+    (r"\b(?:[ABCI]P[LH]|[ABCDEFGZ])\b", TokenType.REG, extract_reg),
+    (r"\b[ABCI]P\b", TokenType.DOUBLE_REG, extract_reg),
     (r"[\w!@$?.]+", TokenType.IDENTIFIER, extract_name),
     (r":", TokenType.COLON),
     (r",", TokenType.COMMA),
@@ -73,8 +71,21 @@ assembly_lexer = Lexer([
     (r"\s+", None) # Ignore whitespace by default
 ], re.IGNORECASE)
 
+
+class UnknownOpcode(AssemblerError):
+    def __init__(self, opcode):
+        self.opcode = opcode
+        super().__init__()
+
+    def get_message(self):
+        return f"Unknown opcode {self.opcode}"
+
 def assemble_statement(assembler_state, opcode, args):
-    print(f"{assembler_state.line_number}: Statement: {opcode} ({len(args)})")
+    assembler_func = asm_opcode_lookup.get(opcode)
+    if assembler_func is not None:
+        assembler_func(assembler_state, opcode, args)
+    else:
+        assembler_state.error(UnknownOpcode(opcode))
 
 def assemble_label(assembler_state, token):
     if token.token_type is TokenType.IDENTIFIER:
@@ -92,7 +103,7 @@ def assemble_label(assembler_state, token):
 
 mem = array('h', (-1 for i in range(32768)))
 assembler_state = Assembler(mem)
-with open("../test.a12", 'r') as f:
+with open("../test2.a12", 'r') as f:
     tokens = assembly_lexer.tokenize(f)
     tokens = iter_chain(tokens, (LexerToken(TokenType.END, False),))
     assembler_state.file_name = "test.a12"

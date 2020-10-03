@@ -1,0 +1,9 @@
+#o0000_4000:
+test_label:
+	mov A, B
+	mov A, #0
+	mov B A, AP
+	mov AP, BP
+	mov IP, #o4000
+	mov IP, test_label
+	add A, #5

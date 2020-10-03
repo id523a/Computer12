@@ -1,3 +1,5 @@
+from enum import Enum
+
 class AssemblerAbort(Exception):
     pass
 
@@ -90,3 +92,17 @@ class Assembler:
         else:
             self.mem[self.address] = w
             self.address += 1
+
+class TokenType(Enum):
+    END = 1
+    NUMBER = 2
+    REG = 3
+    DOUBLE_REG = 4
+    IDENTIFIER = 5
+    COLON = 6
+    COMMA = 7
+    LEFT_BRACKET = 8
+    RIGHT_BRACKET = 9
+    AUTO_INCREMENT = 10
+    AUTO_DECREMENT = 11
+    PLUS = 12
