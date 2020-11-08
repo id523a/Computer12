@@ -90,19 +90,55 @@ def assemble_statement(assembler_state, opcode, args):
 def assemble_label(assembler_state, token):
     if token.token_type is TokenType.IDENTIFIER:
         if token.value not in assembler_state.labels:
-            print(f"Label: {token.value} = {assembler_state.address:08o}")
             assembler_state.labels[token.value] = assembler_state.address
         else:
             assembler_state.error(AssemblerError(f"Label {token.value} is already defined."))
     elif token.token_type is TokenType.NUMBER:
         if token.value >= 0 and token.value < len(assembler_state.mem):
-            print(f"Label: {token.value:08o}")
             assembler_state.address = token.value
         else:
             assembler_state.error(AssemblerError(f"Label address is out of range."))
 
+def mif_lines(mem):
+    # Write file header
+    yield '-- Assembler12 - generated file'
+    yield 'WIDTH=12;'
+    yield f'DEPTH={len(mem)};'
+    yield 'ADDRESS_RADIX=HEX;'
+    yield 'DATA_RADIX=HEX;'
+    yield ''
+    yield 'CONTENT BEGIN'
+    # Run-length encode file contents
+    prev_word = -1
+    run_start = 0
+    address = 0
+    addr_width = (len(mem).bit_length() + 3) // 4
+    # The 'mem' array is extended with a value that cannot be in the input,
+    # so that the last run is finished properly
+    for word in iter_chain(mem, (None,)):
+        # Negative values in the input should be written as zeros
+        if word is not None and word < 0:
+            word = 0
+        # If a new run has started,
+        if word != prev_word:
+            run_length = address - run_start
+            # write out the previous run
+            if run_length >= 1:
+                run_end = address - 1
+                if run_length == 1:
+                    addr_part = f'\t{run_start:0{addr_width}X}'
+                else:
+                    addr_part = f'\t[{run_start:0{addr_width}X}..{run_end:0{addr_width}X}]'
+                yield f'{addr_part} : {prev_word:03X};'
+            # Start the new run
+            run_start = address
+            prev_word = word
+        address += 1
+    yield 'END;'
+
 mem = array('h', (-1 for i in range(32768)))
 assembler_state = Assembler(mem)
+errored = False
 with open("../test2.a12", 'r') as f:
     tokens = assembly_lexer.tokenize(f)
     tokens = iter_chain(tokens, (LexerToken(TokenType.END, False),))
@@ -140,5 +176,14 @@ with open("../test2.a12", 'r') as f:
             assembler_state.resolve_deferred()
     except AssemblerAbort:
         pass
+    if len(assembler_state.errors) > 0:
+        errored = True
     for err in assembler_state.errors:
         print(err)
+
+if errored:
+    print("* Assembly failed. No output written.")
+else:
+    with open("../outfile.mif", 'w') as f:
+        for line in mif_lines(mem):
+            f.write(line + '\n')

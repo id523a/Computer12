@@ -91,7 +91,6 @@ class Assembler:
         elif self.mem[self.address] >= 0:
             self.error(AssemblerOverwrite(self.address))
         else:
-            print(f"{self.address:08o} = {w:04o}")
             self.mem[self.address] = w
             self.address += 1
 
@@ -101,7 +100,6 @@ class Assembler:
         elif self.mem[self.address] >= 0:
             self.error(AssemblerOverwrite(self.address))
         else:
-            print(f"{self.address:08o} = <defer>")
             self.mem[self.address] = 0
             self.defer_list.append((self.address, w_func))
             self.address += 1

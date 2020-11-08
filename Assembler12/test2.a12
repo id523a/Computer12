@@ -6,4 +6,4 @@ test_label:
 	sbk A B, C D
 	mov IP, #o4000
 	mov IP, test_label
-	add AP, undefined_label
+	add AP, #hfffffffff
