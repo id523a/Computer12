@@ -98,16 +98,31 @@ def assemble_instr_basic(state, opcode, args):
             return
     dests.reverse()
     srcs.reverse()
+    print(dests, srcs)
     if use_immediate_value:
-        for idx, dest_reg in enumerate(dests):
-            opcode_carry = opcode
-            if idx >= 1:
-                opcode_carry = opcode_carry_lookup.get(opcode, opcode)
-            write_instr_basic(state, opcode_carry, dest_reg, 7)
-            if immediate_value_defer:
-                state.write_deferred(defer_read_label(immediate_value, idx))
-            else:
-                state.write_word((immediate_value >> (12 * idx)) & 4095)
+        immediate_value_valid = True
+        if immediate_value_defer:
+            immediate_value_valid = (len(dests) >= 2)
+            if not immediate_value_valid:
+                state.error(AssemblerError(f'The destination for {opcode} must be at least 2 words in order to accommodate a label address.'))
+                return
+        else:
+            immediate_max = 4096 ** len(dests)
+            immediate_min = -immediate_max // 2
+            immediate_value_valid = (immediate_value >= immediate_min and immediate_value < immediate_max)
+            if not immediate_value_valid:
+                state.error(AssemblerError(f'The immediate operand for {opcode} is too large for its destination.'))
+                return
+        if immediate_value_valid:
+            for idx, dest_reg in enumerate(dests):
+                opcode_carry = opcode
+                if idx >= 1:
+                    opcode_carry = opcode_carry_lookup.get(opcode, opcode)
+                write_instr_basic(state, opcode_carry, dest_reg, 7)
+                if immediate_value_defer:
+                    state.write_deferred(defer_read_label(immediate_value, idx))
+                else:
+                    state.write_word((immediate_value >> (12 * idx)) & 4095)
     elif len(dests) != len(srcs):
         state.error(AssemblerError(f'The operands for {opcode} must have equal width.'))
         return
